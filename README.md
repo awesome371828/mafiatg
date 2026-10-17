@@ -1,6 +1,6 @@
 # Mafia Keep
 
-Telegram-бот для классической «Мафии» в группах на Python 3.10+ и aiogram 3.x.
+Telegram-бот для классической «Мафии» в группах на Python 3.11+ и aiogram 3.x.
 
 ## Возможности
 
@@ -34,7 +34,7 @@ Telegram-бот для классической «Мафии» в группах
 
 ## Бесплатный запуск через GitHub Actions
 
-Workflow `.github/workflows/mafia_server.yml` запускается вручную и по расписанию. Он запускает процесс до 17 400 секунд (4 часа 50 минут), после чего Python сохраняет данные и корректно завершает polling. Workflow затем коммитит изменённый `data.json`.
+Workflow `.github/workflows/mafia_server.yml` запускается вручную и по расписанию. Он запускает процесс до 18 000 секунд (5 часов), после чего Python сохраняет данные и корректно завершает polling. Workflow затем коммитит изменённый `data.json`.
 
 В **Settings → Actions → General → Workflow permissions** выберите **Read and write permissions**. В workflow также выставлено `permissions: contents: write`.
 
