@@ -333,6 +333,8 @@ async def start_night(chat_id: int) -> None:
         if not action:
             continue
         choices = [(tid, name) for tid, name in targets if tid != uid]
+        if action == "kill":
+            choices = [(tid, name) for tid, name in choices if side(game["players"][tid]["role"]) != "mafia"]
         try:
             await bot.send_message(uid, f"🌙 Ночь {game['round']} · <b>{escape(role)}</b>\n{escape(ROLE_DESCRIPTIONS.get(role, 'Выберите действие.'))}",
                                    reply_markup=player_keyboard(chat_id, action, choices))  # type: ignore[union-attr]
@@ -362,7 +364,8 @@ async def resolve_night(chat_id: int) -> None:
     guards = {target: actor for actor, target in actions.items()
               if players.get(actor, {}).get("alive") and players[actor]["role"] == "Телохранитель" and actor not in blocked}
     lawyer_targets = {target for actor, target in actions.items()
-                      if players.get(actor, {}).get("alive") and players[actor]["role"] == "Адвокат"}
+                      if players.get(actor, {}).get("alive") and actor not in blocked
+                      and players[actor]["role"] == "Адвокат"}
     targets_to_kill: list[int] = []
     mafia_target = choose_mafia_target(kills)
     if mafia_target is not None:
@@ -669,6 +672,9 @@ async def action_callback(callback: CallbackQuery) -> None:
         await callback.answer("Цель недоступна.", show_alert=True)
         return
     player = game["players"][uid]
+    if action == "kill" and side(game["players"][target]["role"]) == "mafia":
+        await callback.answer("Мафия не может выбрать союзника.", show_alert=True)
+        return
     if action == "vote":
         if game["phase"] != "day":
             await callback.answer("Голосовать можно днём.", show_alert=True)
@@ -988,6 +994,9 @@ async def resume_phase_timer(chat_id: int, phase: str, delay: float) -> None:
             if not action:
                 continue
             choices = [(target, display_name(target)) for target in alive_players(game) if target != uid]
+            if action == "kill":
+                choices = [(target, name) for target, name in choices
+                           if side(game["players"][target]["role"]) != "mafia"]
             try:
                 await bot.send_message(
                     uid,
