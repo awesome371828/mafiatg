@@ -35,6 +35,7 @@ router = Router()
 dp = Dispatcher()
 dp.include_router(router)
 bot: Bot | None = None
+bot_username = "MafiaKeepBot"
 shutdown_event = asyncio.Event()
 games: dict[int, dict[str, Any]] = {}
 player_to_chat: dict[int, int] = {}
@@ -342,16 +343,17 @@ async def start(message: Message) -> None:
     if is_banned(message.from_user.id):
         await message.answer("⛔ Вы заблокированы в Mafia Keep.")
         return
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="➕ Добавить в чат", url=f"https://t.me/{(await bot.get_me()).username}?startgroup=true")],  # type: ignore[union-attr]
-        [InlineKeyboardButton(text="📜 Правила", callback_data="rules")],
-    ])
+    global bot_username
+    bot_username = (await bot.get_me()).username or bot_username  # type: ignore[union-attr]
+    menu = main_menu_keyboard()
+    if is_admin(message.from_user.id):
+        menu.inline_keyboard.append([InlineKeyboardButton(text="🛡 Админ-панель", callback_data="admin_panel")])
     await message.answer(
         "🕵️ <b>Добро пожаловать в Mafia Keep!</b>\n\n"
         "Организуйте игру в групповом чате, собирайте игроков, получайте роли и выясняйте, кто скрывается за маской мафии.\n\n"
         "1. Добавьте бота в группу.\n2. В группе отправьте /new_game.\n3. Участники нажимают «Записаться».\n4. От 4 игроков используйте /start_game.\n\n"
         "Важно: каждый участник должен открыть бота в личке и нажать /start, чтобы получать роль и ночные действия.",
-        reply_markup=kb,
+        reply_markup=menu,
     )
 
 
@@ -557,6 +559,181 @@ async def profile(message: Message) -> None:
         f"💔 Поражений: {record.get('losses', 0)}\n"
         f"📈 Винрейт: {round(record.get('wins', 0) * 100 / max(1, record.get('games', 0)))}%"
     )
+
+
+
+def main_menu_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="➕ Добавить в чат", url=f"https://t.me/{bot_username}?startgroup=true")],
+        [InlineKeyboardButton(text="👤 Мой профиль", callback_data="my_profile"),
+         InlineKeyboardButton(text="📜 Правила", callback_data="rules")],
+        [InlineKeyboardButton(text="🎭 Как начать игру", callback_data="how_to")],
+    ])
+
+
+@router.callback_query(F.data == "my_profile")
+async def profile_button(callback: CallbackQuery) -> None:
+    if not callback.from_user:
+        return
+    rec=touch_user(callback.from_user)
+    await save_data()
+    if is_banned(callback.from_user.id):
+        await callback.answer("Вы заблокированы.", show_alert=True)
+        return
+    await callback.answer()
+    if callback.message:
+        await callback.message.answer(
+            f"👤 <b>ПРОФИЛЬ ИГРОКА</b>\\nИмя: {callback.from_user.full_name}\\n"
+            f"🎮 Игр: {rec.get('games',0)} · 🏆 Побед: {rec.get('wins',0)} · 💔 Поражений: {rec.get('losses',0)}\\n"
+            f"📈 Винрейт: {round(rec.get('wins',0)*100/max(1,rec.get('games',0)))}%",
+            reply_markup=main_menu_keyboard())
+
+
+@router.callback_query(F.data == "how_to")
+async def how_to_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
+    if callback.message:
+        await callback.message.answer(
+            "🎭 <b>Как начать игру</b>\\n1. Добавьте бота в группу.\\n"
+            "2. Напишите «старт мафия» или /new_game.\\n"
+            "3. Игроки нажимают «Зарегистрироваться» — список обновляется прямо в сообщении.\\n"
+            "4. От 4 игроков нажмите «Начать мафию».\\n"
+            "5. Каждый участник должен нажать /start в личке, чтобы получать роль.\\n"
+            "🌙 Ночью мафия выбирает жертву, шериф проверяет, доктор лечит. Днём — обсуждение и голосование.",
+            reply_markup=main_menu_keyboard())
+
+
+@router.callback_query(F.data == "admin_panel")
+async def admin_panel_callback(callback: CallbackQuery) -> None:
+    if not callback.from_user or not is_admin(callback.from_user.id):
+        await callback.answer("Доступ только владельцу.", show_alert=True)
+        return
+    await callback.answer()
+    if callback.message:
+        await callback.message.answer(
+            f"🛡 <b>ПАНЕЛЬ ВЛАДЕЛЬЦА · MAFIA KEEP</b>\\nПользователей: {len(data['users'])}\\n"
+            f"Активных игр: {len(games)}\\nБлокировок: {len(data['bans'])}\\n"
+            f"Завершённых партий: {data['totals'].get('games',0)}",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="📊 Статистика", callback_data="admin_stats")],
+                [InlineKeyboardButton(text="🎮 Активные игры", callback_data="admin_games")],
+                [InlineKeyboardButton(text="📣 Рассылка", callback_data="admin_broadcast_help")]]))
+
+
+@router.callback_query(F.data == "admin_stats")
+async def admin_stats_callback(callback: CallbackQuery) -> None:
+    if not callback.from_user or not is_admin(callback.from_user.id):
+        await callback.answer("Доступ запрещён.", show_alert=True)
+        return
+    await callback.answer()
+    if callback.message:
+        await callback.message.answer(
+            f"📊 <b>СТАТИСТИКА</b>\\nПользователей: {len(data['users'])}\\nАктивных игр: {len(games)}\\n"
+            f"Блокировок: {len(data['bans'])}\\nЗавершено партий: {data['totals'].get('games',0)}\\n"
+            f"Время процесса: {int(time.monotonic()-online_since)} сек.",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="⬅️ Админ-панель", callback_data="admin_panel")]]))
+
+
+@router.callback_query(F.data == "admin_games")
+async def admin_games_callback(callback: CallbackQuery) -> None:
+    if not callback.from_user or not is_admin(callback.from_user.id):
+        await callback.answer("Доступ запрещён.", show_alert=True)
+        return
+    await callback.answer()
+    if callback.message:
+        txt="🎮 Активных игр нет." if not games else "🎮 <b>АКТИВНЫЕ ИГРЫ</b>\\n"+"\\n".join(
+            f"• <code>{cid}</code> — фаза {g['phase']}, игроков {len(g['players'])}" for cid,g in games.items())
+        await callback.message.answer(txt,reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="⬅️ Админ-панель",callback_data="admin_panel")]]))
+
+
+@router.callback_query(F.data == "admin_broadcast_help")
+async def admin_broadcast_help(callback: CallbackQuery) -> None:
+    if not callback.from_user or not is_admin(callback.from_user.id):
+        await callback.answer("Доступ запрещён.", show_alert=True)
+        return
+    await callback.answer()
+    if callback.message:
+        await callback.message.answer("📣 Рассылка: отправьте в личку команду /broadcast Текст объявления.")
+
+
+@router.message(Command("broadcast"))
+async def broadcast_command(message: Message) -> None:
+    if not message.from_user or not is_admin(message.from_user.id):
+        return
+    body=(message.text or "").partition(" ")[2].strip()
+    if not body:
+        await message.answer("Использование: /broadcast Текст объявления")
+        return
+    sent=failed=0
+    await message.answer("📣 Начинаю рассылку…")
+    for key in list(data["users"]):
+        try:
+            await bot.send_message(int(key),f"📣 <b>Mafia Keep</b>\\n\\n{body}",reply_markup=main_menu_keyboard())  # type: ignore[union-attr]
+            sent+=1
+        except (TelegramForbiddenError,TelegramBadRequest):
+            failed+=1
+        await asyncio.sleep(0.04)
+    await message.answer(f"Рассылка завершена. Доставлено: {sent}; ошибок: {failed}.")
+
+
+@router.message(Command("admin"))
+async def admin_command(message: Message) -> None:
+    if not message.from_user or not is_admin(message.from_user.id):
+        await message.answer("⛔ Панель доступна только владельцу.")
+        return
+    await message.answer("🛡 <b>Панель владельца</b>",reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="📊 Статистика",callback_data="admin_stats")],
+        [InlineKeyboardButton(text="🎮 Активные игры",callback_data="admin_games")],
+        [InlineKeyboardButton(text="📣 Рассылка",callback_data="admin_broadcast_help")]]))
+
+
+@router.message(Command("cancel_game"))
+async def cancel_game_command(message: Message) -> None:
+    if not message.from_user or message.chat.type == "private":
+        await message.answer("Команду нужно отправить в группе.")
+        return
+    game=games.get(message.chat.id)
+    if not game:
+        await message.answer("Активной игры нет.")
+        return
+    if message.from_user.id not in (game.get("host"),ADMIN_ID):
+        await message.answer("Отменить игру может создатель лобби или владелец бота.")
+        return
+    for uid in game["players"]:
+        player_to_chat.pop(uid,None)
+    games.pop(message.chat.id,None)
+    await message.answer("🛑 <b>Игра отменена.</b>",reply_markup=main_menu_keyboard())
+
+
+@router.message(Command("leaderboard"))
+async def leaderboard_command(message: Message) -> None:
+    ordered=sorted(data["users"].values(),key=lambda u:(int(u.get("wins",0)),int(u.get("games",0))),reverse=True)[:10]
+    lines=["🏆 <b>ТОП-10 ИГРОКОВ</b>"]
+    for i,user in enumerate(ordered,1):
+        lines.append(f"{i}. {display_name(int(user.get('user_id',0)))} — {int(user.get('wins',0))} побед")
+    await message.answer("\\n".join(lines),reply_markup=main_menu_keyboard())
+
+
+@router.message(F.text)
+async def text_shortcuts(message: Message) -> None:
+    if not message.from_user or not message.text or message.text.startswith("/"):
+        return
+    phrase=" ".join(message.text.lower().replace("ё","е").split())
+    starts={
+        "старт мафия","старт мафии","старт мафию","начать мафию","начать мафия",
+        "запустить мафию","запустить мафия","регистрация на мафию","регистрация мафии",
+        "создать мафию","создать игру мафия","мафия старт","мафия стартуй",
+        "го мафия","го в мафию","игра мафия","начинаем мафию","начинаем мафия",
+        "открыть регистрацию мафия","открыть регистрацию на мафию"
+    }
+    if phrase in starts and message.chat.type != "private":
+        await new_game(message)
+    elif phrase in {"профиль","мой профиль","статистика мафия"}:
+        await profile(message)
+    elif phrase in {"правила мафии","правила мафия","как играть в мафию"}:
+        await message.answer("📜 <b>Правила Mafia Keep</b>\\nМафия побеждает, когда мафии не меньше мирных; мирные — когда вся мафия выбыла. Ночью мафия выбирает жертву, шериф проверяет, доктор лечит; днём город голосует.",reply_markup=main_menu_keyboard())
 
 
 @router.message()
