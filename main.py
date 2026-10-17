@@ -25,7 +25,7 @@ APP_NAME = "Mafia Keep"
 ADMIN_ID = 6652898792
 TOKEN = os.getenv("TELEGRAM_TOKEN", "").strip()
 DATA_PATH = Path(os.getenv("DATA_PATH", "data.json"))
-CONTAINER_SECONDS = int(os.getenv("CONTAINER_SECONDS", "17400"))
+CONTAINER_SECONDS = int(os.getenv("CONTAINER_SECONDS", "18000"))
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO),
