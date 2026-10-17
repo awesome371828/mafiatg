@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import hmac
 import json
 import math
 import os
 import random
+from urllib.parse import parse_qsl
 import time
 from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass, field
@@ -15,7 +18,7 @@ import uvicorn
 from aiogram import Bot, Dispatcher, F, BaseMiddleware
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Header, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 DB_PATH = os.getenv("DB_PATH", "cryptoroyale.sqlite3")
@@ -71,6 +74,32 @@ async def ensure_user(user_id: int, username: str | None = None) -> dict[str, An
     cur = await db.execute("SELECT * FROM users WHERE user_id=?", (user_id,))
     row = await cur.fetchone()
     return dict(row)
+
+
+def verify_telegram_init_data(init_data: str) -> dict[str, Any] | None:
+    """Validate Telegram WebApp initData using the official HMAC-SHA-256 scheme."""
+    if not BOT_TOKEN or not init_data or len(init_data) > 16384:
+        return None
+    try:
+        pairs = dict(parse_qsl(init_data, keep_blank_values=True, strict_parsing=True))
+        received_hash = pairs.pop("hash", "")
+        if not received_hash or "auth_date" not in pairs or "user" not in pairs:
+            return None
+        data_check_string = "\\n".join(f"{key}={value}" for key, value in sorted(pairs.items()))
+        secret_key = hmac.new(b"WebAppData", BOT_TOKEN.encode("utf-8"), hashlib.sha256).digest()
+        calculated_hash = hmac.new(secret_key, data_check_string.encode("utf-8"), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(calculated_hash, received_hash):
+            return None
+        auth_date = int(pairs["auth_date"])
+        now = int(time.time())
+        if auth_date > now + 60 or now - auth_date > 86400:
+            return None
+        user = json.loads(pairs["user"])
+        if not isinstance(user, dict) or not isinstance(user.get("id"), int):
+            return None
+        return user
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return None
 
 
 async def get_user(user_id: int) -> dict[str, Any] | None:
@@ -482,7 +511,10 @@ async def health():
 
 
 @api.get("/api/profile/{user_id}")
-async def profile(user_id: int):
+async def profile(user_id: int, x_telegram_init_data: str = Header(default="", alias="X-Telegram-Init-Data")):
+    telegram_user = verify_telegram_init_data(x_telegram_init_data)
+    if not telegram_user or telegram_user["id"] != user_id:
+        raise HTTPException(status_code=401, detail="Valid Telegram WebApp initData required")
     user = await get_user(user_id)
     if not user:
         return {"ok": False, "error": "user_not_registered"}
@@ -509,17 +541,22 @@ async def websocket_endpoint(ws: WebSocket):
             await ws.send_json({"type": "error", "message": "Сначала отправьте auth."})
             await ws.close(code=4400)
             return
-        try:
-            user_id = int(hello.get("userId"))
-        except (TypeError, ValueError):
-            await ws.send_json({"type": "error", "message": "Нужен числовой Telegram user ID."})
-            await ws.close(code=4400)
+        telegram_user = verify_telegram_init_data(str(hello.get("initData") or ""))
+        if not telegram_user:
+            await ws.send_json({"type": "error", "message": "Не удалось подтвердить Telegram WebApp. Откройте игру из Telegram и обновите её."})
+            await ws.close(code=4401, reason="invalid initData")
+            return
+        user_id = int(telegram_user["id"])
+        if hello.get("userId") is not None and str(hello.get("userId")) != str(user_id):
+            await ws.send_json({"type": "error", "message": "Telegram ID не совпадает с проверенными данными."})
+            await ws.close(code=4401, reason="user mismatch")
             return
         if user_id <= 0:
             await ws.send_json({"type": "error", "message": "Некорректный user ID."})
             await ws.close(code=4400)
             return
-        user = await ensure_user(user_id, str(hello.get("username") or "")[:64] or None)
+        verified_username = telegram_user.get("username") or " ".join(filter(None, [telegram_user.get("first_name"), telegram_user.get("last_name")])) or None
+        user = await ensure_user(user_id, str(verified_username or "")[:64] or None)
         if user["status"] == "banned":
             await ws.send_json({"type": "banned", "message": "Вы забанены админом Crypto Royale!"})
             await ws.close(code=4003, reason="banned")
