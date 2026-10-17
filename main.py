@@ -320,7 +320,14 @@ async def resolve_night(chat_id: int) -> None:
                       if players.get(actor, {}).get("alive") and players[actor]["role"] == "Адвокат"}
     targets_to_kill: list[int] = []
     if kills:
-        targets_to_kill.append(max(set(kills), key=kills.count))
+        mafia_votes: dict[int, int] = {}
+        for target in kills:
+            mafia_votes[target] = mafia_votes.get(target, 0) + 1
+        best = max(mafia_votes.values())
+        leaders = [target for target, amount in mafia_votes.items() if amount == best]
+        # A tie in the mafia's internal vote means the family fails to agree.
+        if len(leaders) == 1:
+            targets_to_kill.append(leaders[0])
     targets_to_kill.extend(maniac_kills[:1])
     died: set[int] = set()
     for target in targets_to_kill:
@@ -347,8 +354,9 @@ async def resolve_night(chat_id: int) -> None:
         elif role == "Журналист":
             await safe_send(actor, f"📰 Проверка: {display_name(target)} — сторона «{ {'mafia':'мафия','town':'город','maniac':'одиночка'}[side(players[target]['role'])] }».")
         elif role == "Бомж":
-            visitors = [display_name(a) for a, t in actions.items() if t == actor and a != actor]
-            await safe_send(actor, "👣 За вами приходили: " + (", ".join(visitors) if visitors else "никто не приходил") + ".")
+            visitors = [display_name(a) for a, t in actions.items() if t == target and a != actor]
+            await safe_send(actor, f"👣 К игроку {display_name(target)} приходили: " +
+                            (", ".join(visitors) if visitors else "никто не приходил") + ".")
     for uid in died:
         if uid in players:
             players[uid]["alive"] = False
@@ -463,6 +471,7 @@ def owner_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="⚙️ Настройки игры", callback_data="adm:settings"),
          InlineKeyboardButton(text="🎭 Роли", callback_data="adm:roles")],
         [InlineKeyboardButton(text="🧹 Сбросить все игры", callback_data="adm:reset")],
+        [InlineKeyboardButton(text="💾 Сохранить данные", callback_data="adm:save")],
         [InlineKeyboardButton(text="📣 Рассылка", callback_data="adm:broadcast")],
         [InlineKeyboardButton(text="🚫 Управление банами", callback_data="adm:bans")],
     ])
@@ -530,6 +539,7 @@ async def new_game(message: Message) -> None:
     }
     sent = await message.answer(lobby_text(message.chat.id), reply_markup=lobby_markup(message.chat.id))
     games[message.chat.id]["lobby_message_id"] = sent.message_id
+    await save_data()
     # Registration closes automatically. Host can start earlier once the minimum is reached.
     asyncio.create_task(registration_timeout(message.chat.id, sent.message_id))
 
@@ -538,7 +548,7 @@ async def registration_timeout(chat_id: int, message_id: int) -> None:
     await asyncio.sleep(int(settings()["registration_seconds"]))
     game = games.get(chat_id)
     if game and game["phase"] == "lobby" and game.get("lobby_message_id") == message_id:
-        await safe_send(chat_id, "⌛ Регистрация завершена по времени. Создайте новое лобби командой /game.")
+        await safe_send(chat_id, "⌛ Регистрация закрыта. Для новой партии напишите /game.")
         for uid in game["players"]:
             player_to_chat.pop(uid, None)
         games.pop(chat_id, None)
@@ -679,7 +689,7 @@ async def admin_callback(callback: CallbackQuery) -> None:
     await callback.answer()
     if not callback.message:
         return
-    if section in ("home", "home"):
+    if section == "home":
         await callback.message.edit_text("🛡 <b>Mafia Keep · владелец</b>", reply_markup=owner_keyboard())
     elif section == "stats":
         await callback.message.edit_text(
@@ -698,11 +708,23 @@ async def admin_callback(callback: CallbackQuery) -> None:
         await callback.message.edit_text("🎭 <b>Роли · нажми, чтобы включить или выключить</b>",
                                          reply_markup=roles_keyboard())
     elif section == "reset":
+        await callback.message.edit_text(
+            "⚠️ <b>Сбросить все активные игры?</b> Статистика игроков сохранится.",
+            reply_markup=kb([
+                [InlineKeyboardButton(text="🧹 Да, сбросить", callback_data="adm:reset_confirm")],
+                [InlineKeyboardButton(text="Отмена", callback_data="adm:home")],
+            ]))
+    elif section == "reset_confirm":
         for game in games.values():
             for uid in game["players"]:
                 player_to_chat.pop(uid, None)
         games.clear()
-        await callback.message.edit_text("🧹 Все активные игры сброшены.", reply_markup=owner_keyboard())
+        await save_data()
+        await callback.message.edit_text("🧹 Активные игры сброшены. Статистика сохранена.", reply_markup=owner_keyboard())
+    elif section == "save":
+        await save_data()
+        await callback.message.edit_text("💾 <b>Данные сохранены.</b> Активные игры, настройки и статистика записаны.",
+                                         reply_markup=owner_keyboard())
     elif section == "broadcast":
         await callback.message.edit_text("📣 Отправь команду /broadcast текст объявления.",
                                          reply_markup=kb([[InlineKeyboardButton(text="⬅️ Назад", callback_data="adm:home")]]))
