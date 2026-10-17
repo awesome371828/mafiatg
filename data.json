@@ -1,18 +1,45 @@
 {
-  "users": {},
-  "bans": {},
+  "users": {
+    "6652898792": {
+      "user_id": 6652898792,
+      "username": "rypyi",
+      "first_name": "awesome",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-10-17T01:57:13.561577+00:00"
+    },
+    "7969567972": {
+      "user_id": 7969567972,
+      "username": "SADSADSAasf",
+      "first_name": "member",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-10-17T01:58:32.465125+00:00"
+    }
+  },
+  "bans": {
+    "11": {
+      "reason": "d",
+      "by": 6652898792,
+      "at": "2026-10-17T01:57:38.833616+00:00"
+    }
+  },
   "totals": {
     "games": 0,
     "wins": {}
   },
   "settings": {
-    "min_players": 2,
+    "min_players": 4,
     "max_players": 20,
     "night_seconds": 25,
     "day_seconds": 30,
     "registration_seconds": 300,
     "show_roles": true,
-    "test_mode": true,
+    "test_mode": false,
     "roles_enabled": {
       "mafia": true,
       "don": true,
@@ -30,5 +57,6 @@
       "bodyguard": true,
       "mayor": true
     }
-  }
+  },
+  "active_games": {}
 }
