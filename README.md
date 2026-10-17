@@ -45,6 +45,15 @@ python main.py
 
 Порт по умолчанию: 8000. Для production поставьте перед Uvicorn HTTPS reverse proxy и проксируйте WebSocket upgrade. Не помещайте токен бота в frontend или репозиторий.
 
+После размещения backend обязательно отредактируйте `frontend/config.js` перед публикацией фронтенда:
+
+```js
+window.CR_API_BASE = "https://api.example.com";
+window.CR_WS_URL = "wss://api.example.com/ws";
+```
+
+Замените `api.example.com` на ваш собственный домен backend. Используйте HTTPS/WSS; адрес GitHub Pages не может запускать Python и не является WebSocket-сервером. После коммита workflow автоматически опубликует обновлённый frontend.
+
 ## Подключение к Telegram
 1. Установите `WEBAPP_URL` в URL опубликованной страницы.
 2. В BotFather настройте домен Web App, если Telegram попросит.
