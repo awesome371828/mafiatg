@@ -174,6 +174,33 @@ def alive_players(game: dict[str, Any]) -> list[int]:
     return [uid for uid, p in game["players"].items() if p.get("alive")]
 
 
+def choose_mafia_target(votes: list[int]) -> int | None:
+    """Return a target only when one candidate has the unique highest vote count."""
+    counts: dict[int, int] = {}
+    for target in votes:
+        counts[target] = counts.get(target, 0) + 1
+    if not counts:
+        return None
+    highest = max(counts.values())
+    leaders = [target for target, count in counts.items() if count == highest]
+    return leaders[0] if len(leaders) == 1 else None
+
+
+def choose_day_victim(game: dict[str, Any]) -> int | None:
+    """Resolve valid living votes; a tie or no votes means nobody is expelled."""
+    alive = set(alive_players(game))
+    counts: dict[int, int] = {}
+    for voter, target in game.get("votes", {}).items():
+        if voter in alive and target in alive:
+            weight = 2 if game["players"][voter]["role"] == "Мэр" else 1
+            counts[target] = counts.get(target, 0) + weight
+    if not counts:
+        return None
+    highest = max(counts.values())
+    leaders = [target for target, amount in counts.items() if amount == highest]
+    return leaders[0] if len(leaders) == 1 else None
+
+
 def side(role: str) -> str:
     if role in ("Мафия", "Дон"):
         return "mafia"
@@ -319,15 +346,9 @@ async def resolve_night(chat_id: int) -> None:
     lawyer_targets = {target for actor, target in actions.items()
                       if players.get(actor, {}).get("alive") and players[actor]["role"] == "Адвокат"}
     targets_to_kill: list[int] = []
-    if kills:
-        mafia_votes: dict[int, int] = {}
-        for target in kills:
-            mafia_votes[target] = mafia_votes.get(target, 0) + 1
-        best = max(mafia_votes.values())
-        leaders = [target for target, amount in mafia_votes.items() if amount == best]
-        # A tie in the mafia's internal vote means the family fails to agree.
-        if len(leaders) == 1:
-            targets_to_kill.append(leaders[0])
+    mafia_target = choose_mafia_target(kills)
+    if mafia_target is not None:
+        targets_to_kill.append(mafia_target)
     targets_to_kill.extend(maniac_kills[:1])
     died: set[int] = set()
     for target in targets_to_kill:
@@ -392,17 +413,7 @@ async def resolve_day(chat_id: int) -> None:
     game = games.get(chat_id)
     if not game:
         return
-    counts: dict[int, int] = {}
-    for voter, target in game.get("votes", {}).items():
-        if voter in alive_players(game) and target in alive_players(game):
-            weight = 2 if game["players"][voter]["role"] == "Мэр" else 1
-            counts[target] = counts.get(target, 0) + weight
-    victim = None
-    if counts:
-        top = max(counts.values())
-        leaders = [uid for uid, amount in counts.items() if amount == top]
-        if len(leaders) == 1:
-            victim = leaders[0]
+    victim = choose_day_victim(game)
     if victim is None:
         await safe_send(chat_id, "⚖️ Ничья или нет голосов. Никто не изгнан.")
     else:
