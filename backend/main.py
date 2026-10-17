@@ -85,7 +85,7 @@ def verify_telegram_init_data(init_data: str) -> dict[str, Any] | None:
         received_hash = pairs.pop("hash", "")
         if not received_hash or "auth_date" not in pairs or "user" not in pairs:
             return None
-        data_check_string = "\\n".join(f"{key}={value}" for key, value in sorted(pairs.items()))
+        data_check_string = "\n".join(f"{key}={value}" for key, value in sorted(pairs.items()))
         secret_key = hmac.new(b"WebAppData", BOT_TOKEN.encode("utf-8"), hashlib.sha256).digest()
         calculated_hash = hmac.new(secret_key, data_check_string.encode("utf-8"), hashlib.sha256).hexdigest()
         if not hmac.compare_digest(calculated_hash, received_hash):
