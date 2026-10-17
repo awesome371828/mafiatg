@@ -106,11 +106,22 @@ def player_keyboard(chat_id: int, action: str, candidates: list[tuple[int, str]]
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def lobby_keyboard(chat_id: int) -> InlineKeyboardMarkup:
+def lobby_keyboard(chat_id: int) -> str:
+    players = games.get(chat_id, {}).get("players", {})
+    roster = "\n".join(f"• {display_name(uid)}" for uid in players) or "Пока никто не записался — станьте первым!"
+    return ("🎭 <b>MAFIA KEEP · РЕГИСТРАЦИЯ ОТКРЫТА</b>\n━━━━━━━━━━━━━━━━━━\n"
+            f"👥 Игроков: <b>{len(players)}/20</b> · минимум 4\n\n{roster}\n\n"
+            "👇 Нажмите кнопку ниже. Список участников обновляется в этом сообщении.")
+
+
+def lobby_markup(chat_id: int) -> InlineKeyboardMarkup:
+    count = len(games.get(chat_id, {}).get("players", {}))
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🟢 Записаться", callback_data=f"join:{chat_id}")],
-        [InlineKeyboardButton(text="🔴 Покинуть игру", callback_data=f"leave:{chat_id}")],
-        [InlineKeyboardButton(text="🎭 Начать игру", callback_data=f"begin:{chat_id}")],
+        [InlineKeyboardButton(text=f"🟢 Зарегистрироваться · {count}", callback_data=f"join:{chat_id}")],
+        [InlineKeyboardButton(text="🚪 Отменить регистрацию", callback_data=f"leave:{chat_id}")],
+        [InlineKeyboardButton(text="🌙 Начать мафию", callback_data=f"begin:{chat_id}")],
+        [InlineKeyboardButton(text="📜 Правила", callback_data="rules"),
+         InlineKeyboardButton(text="👤 Профиль", callback_data="my_profile")],
     ])
 
 
@@ -175,13 +186,18 @@ async def finish_game(chat_id: int, winner: str) -> None:
 
 async def announce_state(chat_id: int) -> None:
     game = games.get(chat_id)
-    if not game:
+    if not game or not bot:
         return
-    lines = [f"🎭 <b>{APP_NAME} — игроки</b>"]
-    for uid, p in game["players"].items():
-        status = "💚" if p["alive"] else "☠️"
-        lines.append(f"{status} {display_name(uid)}")
-    await safe_send(chat_id, "\n".join(lines))
+    mid = game.get("lobby_message_id")
+    if mid and game.get("phase") == "lobby":
+        try:
+            await bot.edit_message_text(chat_id=chat_id, message_id=mid,
+                text=lobby_keyboard(chat_id), reply_markup=lobby_markup(chat_id))
+        except TelegramBadRequest as exc:
+            if "message is not modified" not in str(exc).lower():
+                log.info("Could not refresh lobby: %s", exc)
+        except TelegramForbiddenError:
+            log.info("Could not refresh lobby in chat %s", chat_id)
 
 
 async def start_night(chat_id: int) -> None:
@@ -358,9 +374,10 @@ async def new_game(message: Message) -> None:
         return
     touch_user(message.from_user)
     games[message.chat.id] = {"phase": "lobby", "host": message.from_user.id,
-                              "players": {}, "round": 0, "votes": {}, "night_actions": {}}
-    await message.answer("🎭 <b>Mafia Keep — новое лобби</b>\nНажмите кнопку ниже, чтобы войти. Для старта нужно минимум 4 игрока.",
-                         reply_markup=lobby_keyboard(message.chat.id))
+                              "players": {}, "round": 0, "votes": {}, "night_actions": {},
+                              "lobby_message_id": None}
+    sent = await message.answer(lobby_keyboard(message.chat.id), reply_markup=lobby_markup(message.chat.id))
+    games[message.chat.id]["lobby_message_id"] = sent.message_id
 
 
 @router.message(Command("start_game"))
@@ -389,6 +406,9 @@ async def join_callback(callback: CallbackQuery) -> None:
         return
     if callback.from_user.id in player_to_chat:
         await callback.answer("Вы уже участвуете в другой игре.", show_alert=True)
+        return
+    if len(game["players"]) >= 20:
+        await callback.answer("Лобби заполнено: максимум 20 игроков.", show_alert=True)
         return
     game["players"][callback.from_user.id] = {"role": "Не назначена", "alive": True}
     player_to_chat[callback.from_user.id] = chat_id
