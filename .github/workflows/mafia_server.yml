@@ -1,0 +1,53 @@
+name: Mafia Keep Bot
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Starts a fresh runner every five hours (GitHub may delay scheduled runs).
+    - cron: "0 */5 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mafia-keep-bot
+  cancel-in-progress: true
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 295
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip aiogram
+      - name: Validate Python syntax
+        run: python -m py_compile main.py
+      - name: Run Mafia Keep
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CONTAINER_SECONDS: "17400"
+          PYTHONUNBUFFERED: "1"
+        run: python -u main.py
+      - name: Persist game statistics and bans
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          if git diff --cached --quiet; then
+            echo "No data.json changes to commit."
+          else
+            git commit -m "Persist Mafia Keep player data"
+            git push
+          fi
