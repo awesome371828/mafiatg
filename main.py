@@ -5,62 +5,88 @@ import json
 import logging
 import os
 import random
-import signal
+import re
 import time
 from datetime import datetime, timezone
+from html import escape
 from pathlib import Path
 from typing import Any
 
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
+from aiogram.enums import ChatType, ParseMode
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.filters import Command, CommandStart
-from aiogram.types import (
-    CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup,
-    Message, User,
-)
+from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 APP_NAME = "Mafia Keep"
 ADMIN_ID = 6652898792
 TOKEN = os.getenv("TELEGRAM_TOKEN", "").strip()
 DATA_PATH = Path(os.getenv("DATA_PATH", "data.json"))
-CONTAINER_SECONDS = int(os.getenv("CONTAINER_SECONDS", "18000"))
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+CONTAINER_SECONDS = max(60, int(os.getenv("CONTAINER_SECONDS", "18000")))
 
-logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO),
-                    format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger(APP_NAME)
 router = Router()
 dp = Dispatcher()
 dp.include_router(router)
 bot: Bot | None = None
 bot_username = "MafiaKeepBot"
-shutdown_event = asyncio.Event()
 games: dict[int, dict[str, Any]] = {}
 player_to_chat: dict[int, int] = {}
 online_since = time.monotonic()
 data_lock = asyncio.Lock()
 
-DEFAULT_DATA: dict[str, Any] = {"users": {}, "bans": {}, "totals": {"games": 0, "wins": {}}}
+ROLE_DESCRIPTIONS = {
+    "Мирный": "Днём обсуждай подозреваемых и голосуй за исключение мафии.",
+    "Мафия": "Ночью выбирай жертву вместе с мафией. Не выдай себя днём.",
+    "Дон": "Глава мафии. Участвует в выборе жертвы и считается мафией при проверке.",
+    "Комиссар": "Каждую ночь проверяй одного игрока и узнавай, относится ли он к мафии.",
+    "Сержант": "Помощник комиссара. Если комиссар погиб, получает возможность проводить проверки.",
+    "Доктор": "Ночью выбери игрока, которого хочешь спасти от убийства.",
+    "Маньяк": "Ночью выбирай отдельную жертву. Побеждает, когда остаётся один.",
+    "Любовница": "Ночью блокируй действие выбранного игрока.",
+    "Адвокат": "Выбери подзащитного: проверка комиссара сочтёт его мирным.",
+    "Самоубийца": "Твоя особая цель — быть изгнанным дневным голосованием.",
+    "Бомж": "Ночью наблюдай за игроком и узнавай, кто к нему приходил.",
+    "Счастливчик": "Один раз можешь пережить ночное убийство благодаря удаче.",
+    "Камикадзе": "Если город изгонит тебя днём, случайный живой игрок погибнет вместе с тобой.",
+    "Журналист": "Ночью проверь игрока и узнай его сторону, но не точную роль.",
+    "Телохранитель": "Ночью прикрывай игрока и погибни вместо него при нападении.",
+    "Мэр": "Твой голос на дневном голосовании считается за два.",
+}
+ROLE_KEYS = {
+    "Мафия": "mafia", "Дон": "don", "Комиссар": "commissioner", "Сержант": "sergeant",
+    "Доктор": "doctor", "Маньяк": "maniac", "Любовница": "mistress", "Адвокат": "lawyer",
+    "Самоубийца": "suicide", "Бомж": "bum", "Счастливчик": "lucky",
+    "Камикадзе": "kamikaze", "Журналист": "journalist", "Телохранитель": "bodyguard", "Мэр": "mayor",
+}
+DEFAULT_SETTINGS: dict[str, Any] = {
+    "min_players": 2, "max_players": 20, "night_seconds": 25, "day_seconds": 30,
+    "registration_seconds": 300, "show_roles": True, "test_mode": True,
+    "roles_enabled": {key: True for key in ROLE_KEYS.values()},
+}
+DEFAULT_DATA: dict[str, Any] = {
+    "users": {}, "bans": {}, "totals": {"games": 0, "wins": {}}, "settings": DEFAULT_SETTINGS,
+}
 
 
 def load_data() -> dict[str, Any]:
     if not DATA_PATH.exists():
         return json.loads(json.dumps(DEFAULT_DATA))
-    try:
-        raw = json.loads(DATA_PATH.read_text(encoding="utf-8"))
-        if not isinstance(raw, dict):
-            raise ValueError("data.json must contain a JSON object")
-        raw.setdefault("users", {})
-        raw.setdefault("bans", {})
-        raw.setdefault("totals", {"games": 0, "wins": {}})
-        raw["totals"].setdefault("games", 0)
-        raw["totals"].setdefault("wins", {})
-        return raw
-    except (OSError, json.JSONDecodeError, ValueError) as exc:
-        log.exception("Could not read data.json: %s", exc)
-        raise
+    raw = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError("data.json must contain an object")
+    for key, value in DEFAULT_DATA.items():
+        raw.setdefault(key, json.loads(json.dumps(value)))
+    raw["totals"].setdefault("games", 0)
+    raw["totals"].setdefault("wins", {})
+    for key, value in DEFAULT_SETTINGS.items():
+        raw["settings"].setdefault(key, json.loads(json.dumps(value)))
+    raw["settings"].setdefault("roles_enabled", dict(DEFAULT_SETTINGS["roles_enabled"]))
+    for key, value in ROLE_KEYS.items():
+        raw["settings"]["roles_enabled"].setdefault(value, True)
+    return raw
 
 
 data = load_data()
@@ -69,111 +95,158 @@ data = load_data()
 async def save_data() -> None:
     async with data_lock:
         DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-        temp = DATA_PATH.with_suffix(".json.tmp")
-        temp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-        temp.replace(DATA_PATH)
+        tmp = DATA_PATH.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp.replace(DATA_PATH)
+
+
+def settings() -> dict[str, Any]:
+    return data["settings"]
 
 
 def touch_user(user: User) -> dict[str, Any]:
     key = str(user.id)
     record = data["users"].setdefault(key, {
-        "user_id": user.id, "username": user.username,
-        "first_name": user.first_name, "games": 0, "wins": 0,
-        "losses": 0, "banned": False, "last_seen": None,
+        "user_id": user.id, "username": user.username, "first_name": user.first_name,
+        "games": 0, "wins": 0, "losses": 0, "banned": False, "last_seen": None,
     })
-    record["username"] = user.username
-    record["first_name"] = user.first_name
-    record["last_seen"] = datetime.now(timezone.utc).isoformat()
+    record.update(username=user.username, first_name=user.first_name,
+                  last_seen=datetime.now(timezone.utc).isoformat())
     return record
 
 
-def is_banned(user_id: int) -> bool:
-    return str(user_id) in data["bans"] or bool(data["users"].get(str(user_id), {}).get("banned"))
+def is_banned(uid: int) -> bool:
+    return str(uid) in data["bans"] or bool(data["users"].get(str(uid), {}).get("banned"))
 
 
-def display_name(user_id: int) -> str:
-    record = data["users"].get(str(user_id), {})
-    username = record.get("username")
-    return f"@{username}" if username else record.get("first_name") or str(user_id)
+def display_name(uid: int) -> str:
+    rec = data["users"].get(str(uid), {})
+    username = rec.get("username")
+    name = "@" + username if username else rec.get("first_name") or f"Игрок {uid}"
+    return escape(str(name))
 
 
-def is_admin(user_id: int) -> bool:
-    return user_id == ADMIN_ID
+def is_admin(uid: int) -> bool:
+    return uid == ADMIN_ID
+
+
+def kb(rows: list[list[InlineKeyboardButton]]) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def main_menu_keyboard() -> InlineKeyboardMarkup:
+    rows = [[InlineKeyboardButton(text="➕ Добавить в чат", url=f"https://t.me/{bot_username}?startgroup=true")]]
+    if bot_username:
+        rows.append([InlineKeyboardButton(text="🎭 Создать игру в группе", url=f"https://t.me/{bot_username}?startgroup=true")])
+    if bot:
+        # The owner-only button is built only for the owner in /start.
+        pass
+    return kb(rows)
+
+
+def lobby_text(chat_id: int) -> str:
+    game = games[chat_id]
+    players = game["players"]
+    roster = "\n".join(f"• {display_name(uid)}" for uid in players) or "Пока пусто"
+    minimum = int(settings()["min_players"])
+    test = " · тестовый режим" if settings()["test_mode"] and minimum == 2 else ""
+    return (f"🎭 <b>MAFIA KEEP</b> · Регистрация открыта\n"
+            f"👥 <b>{len(players)}/{int(settings()['max_players'])}</b> · старт от {minimum}{test}\n\n"
+            f"{roster}\n\nЖми кнопку, чтобы войти.")
+
+
+def lobby_markup(chat_id: int) -> InlineKeyboardMarkup:
+    count = len(games[chat_id]["players"])
+    return kb([
+        [InlineKeyboardButton(text=f"🎭 Записаться · {count}", callback_data=f"join:{chat_id}")],
+        [InlineKeyboardButton(text="✖ Выйти", callback_data=f"leave:{chat_id}"),
+         InlineKeyboardButton(text="▶ Начать", callback_data=f"begin:{chat_id}")],
+    ])
 
 
 def player_keyboard(chat_id: int, action: str, candidates: list[tuple[int, str]]) -> InlineKeyboardMarkup:
     rows = [[InlineKeyboardButton(text=name[:60], callback_data=f"{action}:{chat_id}:{uid}")]
             for uid, name in candidates]
-    return InlineKeyboardMarkup(inline_keyboard=rows)
-
-
-def lobby_keyboard(chat_id: int) -> str:
-    players = games.get(chat_id, {}).get("players", {})
-    roster = "\n".join(f"• {display_name(uid)}" for uid in players) or "Пока никто не записался — станьте первым!"
-    return ("🎭 <b>MAFIA KEEP · РЕГИСТРАЦИЯ ОТКРЫТА</b>\n━━━━━━━━━━━━━━━━━━\n"
-            f"👥 Игроков: <b>{len(players)}/20</b> · минимум 4\n\n{roster}\n\n"
-            "👇 Нажмите кнопку ниже. Список участников обновляется в этом сообщении.")
-
-
-def lobby_markup(chat_id: int) -> InlineKeyboardMarkup:
-    count = len(games.get(chat_id, {}).get("players", {}))
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=f"🟢 Зарегистрироваться · {count}", callback_data=f"join:{chat_id}")],
-        [InlineKeyboardButton(text="🚪 Отменить регистрацию", callback_data=f"leave:{chat_id}")],
-        [InlineKeyboardButton(text="🌙 Начать мафию", callback_data=f"begin:{chat_id}")],
-        [InlineKeyboardButton(text="📜 Правила", callback_data="rules"),
-         InlineKeyboardButton(text="👤 Профиль", callback_data="my_profile")],
-    ])
+    return kb(rows or [[InlineKeyboardButton(text="Нет доступных целей", callback_data="noop")]])
 
 
 def alive_players(game: dict[str, Any]) -> list[int]:
-    return [uid for uid in game["players"] if game["players"][uid]["alive"]]
-
-
-def role_counts(n: int) -> list[str]:
-    mafia = max(1, n // 4)
-    roles = ["Мафия"] * mafia
-    if n >= 7:
-        roles.append("Дон")
-    if n >= 5:
-        roles.append("Шериф")
-    if n >= 6:
-        roles.append("Доктор")
-    if n >= 8:
-        roles.append("Путана")
-    roles.extend(["Мирный"] * (n - len(roles)))
-    return roles[:n]
+    return [uid for uid, p in game["players"].items() if p.get("alive")]
 
 
 def side(role: str) -> str:
-    return "mafia" if role in ("Мафия", "Дон") else "town"
+    if role in ("Мафия", "Дон"):
+        return "mafia"
+    if role == "Маньяк":
+        return "maniac"
+    return "town"
 
 
 def outcome(game: dict[str, Any]) -> str | None:
     alive = alive_players(game)
-    mafia = sum(side(game["players"][uid]["role"]) == "mafia" for uid in alive)
-    town = len(alive) - mafia
-    if mafia == 0:
+    if not alive:
         return "town"
-    if mafia >= town:
+    mafia = sum(side(game["players"][uid]["role"]) == "mafia" for uid in alive)
+    maniac = sum(side(game["players"][uid]["role"]) == "maniac" for uid in alive)
+    town = len(alive) - mafia - maniac
+    if game.get("test_mode_game") and len(game["players"]) == 2 and len(alive) == 2:
+        return None
+    if mafia == 0 and maniac == 0:
+        return "town"
+    if maniac and maniac >= mafia + town:
+        return "maniac"
+    if mafia and mafia >= town + maniac:
         return "mafia"
     return None
 
 
+def build_roles(n: int) -> list[str]:
+    enabled = settings()["roles_enabled"]
+    if n == 2 and settings()["test_mode"]:
+        return ["Мафия", "Комиссар"]
+    roles: list[str] = ["Мафия"] * max(1, n // 4)
+    candidates = [
+        (8, "Дон"), (5, "Комиссар"), (9, "Сержант"), (5, "Доктор"),
+        (9, "Маньяк"), (8, "Любовница"), (10, "Адвокат"), (9, "Самоубийца"),
+        (8, "Бомж"), (6, "Счастливчик"), (10, "Камикадзе"), (8, "Журналист"),
+        (7, "Телохранитель"), (7, "Мэр"),
+    ]
+    for min_n, role in candidates:
+        if n >= min_n and enabled.get(ROLE_KEYS.get(role, ""), True) and len(roles) < n:
+            roles.append(role)
+    roles.extend(["Мирный"] * max(0, n - len(roles)))
+    return roles[:n]
+
+
 async def safe_send(chat_id: int, text: str, **kwargs: Any) -> None:
     try:
-        kwargs.setdefault("reply_markup", main_menu_keyboard())
         await bot.send_message(chat_id, text, **kwargs)  # type: ignore[union-attr]
     except (TelegramForbiddenError, TelegramBadRequest) as exc:
-        log.info("Could not send message to %s: %s", chat_id, exc)
+        log.info("Cannot send message to %s: %s", chat_id, exc)
 
 
-async def finish_game(chat_id: int, winner: str) -> None:
+async def refresh_lobby(chat_id: int) -> None:
+    game = games.get(chat_id)
+    if not game or game["phase"] != "lobby" or not game.get("lobby_message_id"):
+        return
+    try:
+        await bot.edit_message_text(chat_id=chat_id, message_id=game["lobby_message_id"],
+                                    text=lobby_text(chat_id), reply_markup=lobby_markup(chat_id))  # type: ignore[union-attr]
+    except TelegramBadRequest as exc:
+        if "message is not modified" not in str(exc).lower():
+            log.info("Lobby edit failed: %s", exc)
+
+
+async def finish_game(chat_id: int, winner: str, reason: str = "") -> None:
     game = games.get(chat_id)
     if not game:
         return
-    label = "🏆 Победили мирные жители!" if winner == "town" else "🩸 Победила мафия!"
-    await safe_send(chat_id, f"{label}\nИгра завершена. Создайте новое лобби командой /new_game.")
+    names = {"town": "🏆 Победил город", "mafia": "🩸 Победила мафия", "maniac": "🔪 Победил маньяк"}
+    roles = "\n".join(f"• {display_name(uid)} — {escape(p['role'])}{'' if p.get('alive') else ' · выбыл'}"
+                       for uid, p in game["players"].items())
+    await safe_send(chat_id, f"{names.get(winner, 'Игра завершена')}!\n\n<b>Роли:</b>\n{roles}" +
+                    (f"\n\n{escape(reason)}" if reason else "") +
+                    "\n\nНовая партия: /game")
     for uid, player in game["players"].items():
         rec = data["users"].setdefault(str(uid), {"user_id": uid, "games": 0, "wins": 0, "losses": 0})
         rec["games"] = int(rec.get("games", 0)) + 1
@@ -186,20 +259,16 @@ async def finish_game(chat_id: int, winner: str) -> None:
     await save_data()
 
 
-async def announce_state(chat_id: int) -> None:
-    game = games.get(chat_id)
-    if not game or not bot:
-        return
-    mid = game.get("lobby_message_id")
-    if mid and game.get("phase") == "lobby":
-        try:
-            await bot.edit_message_text(chat_id=chat_id, message_id=mid,
-                text=lobby_keyboard(chat_id), reply_markup=lobby_markup(chat_id))
-        except TelegramBadRequest as exc:
-            if "message is not modified" not in str(exc).lower():
-                log.info("Could not refresh lobby: %s", exc)
-        except TelegramForbiddenError:
-            log.info("Could not refresh lobby in chat %s", chat_id)
+def role_action(role: str, game: dict[str, Any]) -> str | None:
+    actions = {
+        "Мафия": "kill", "Дон": "kill", "Комиссар": "check", "Доктор": "heal",
+        "Маньяк": "maniac", "Любовница": "visit", "Адвокат": "lawyer",
+        "Бомж": "observe", "Журналист": "journalist", "Телохранитель": "guard",
+    }
+    if role == "Сержант":
+        if not any(p["alive"] and p["role"] == "Комиссар" for p in game["players"].values()):
+            return "check"
+    return actions.get(role)
 
 
 async def start_night(chat_id: int) -> None:
@@ -210,23 +279,23 @@ async def start_night(chat_id: int) -> None:
     game["night_actions"] = {}
     game["votes"] = {}
     game["round"] += 1
-    await safe_send(chat_id, f"🌙 <b>Ночь {game['round']}</b> наступила. Роли, способные действовать, выберите цель в личке с ботом.")
+    await safe_send(chat_id, f"🌙 <b>Ночь {game['round']}</b> · город засыпает.")
     alive = alive_players(game)
     targets = [(uid, display_name(uid)) for uid in alive]
     for uid in alive:
         role = game["players"][uid]["role"]
-        action = {"Мафия": "kill", "Дон": "kill", "Шериф": "check",
-                  "Доктор": "heal", "Путана": "visit"}.get(role)
-        if action:
-            try:
-                await bot.send_message(uid, f"🌙 Ночь {game['round']}. Ваша роль: <b>{role}</b>. Выберите цель:",
-                                       reply_markup=player_keyboard(chat_id, action, [(tid, name) for tid, name in targets if tid != uid]))  # type: ignore[union-attr]
-            except (TelegramForbiddenError, TelegramBadRequest):
-                await safe_send(chat_id, f"⚠️ {display_name(uid)} не открыл личку с ботом. Ночные действия недоступны, пока игрок не нажмёт /start в личном чате.")
-    await asyncio.sleep(25)
-    if chat_id not in games:
-        return
-    await resolve_night(chat_id)
+        action = role_action(role, game)
+        if not action:
+            continue
+        choices = [(tid, name) for tid, name in targets if tid != uid]
+        try:
+            await bot.send_message(uid, f"🌙 Ночь {game['round']} · <b>{escape(role)}</b>\n{escape(ROLE_DESCRIPTIONS.get(role, 'Выберите действие.'))}",
+                                   reply_markup=player_keyboard(chat_id, action, choices))  # type: ignore[union-attr]
+        except (TelegramForbiddenError, TelegramBadRequest):
+            await safe_send(chat_id, f"⚠️ {display_name(uid)}: открой личку с ботом и нажми /start.")
+    await asyncio.sleep(int(settings()["night_seconds"]))
+    if chat_id in games:
+        await resolve_night(chat_id)
 
 
 async def resolve_night(chat_id: int) -> None:
@@ -234,35 +303,67 @@ async def resolve_night(chat_id: int) -> None:
     if not game:
         return
     actions = game.get("night_actions", {})
+    players = game["players"]
+    blocked = {target for actor, target in actions.items()
+               if players.get(actor, {}).get("alive") and players[actor]["role"] == "Любовница"}
     kills = [target for actor, target in actions.items()
-             if game["players"].get(actor, {}).get("alive")
-             and game["players"][actor]["role"] in ("Мафия", "Дон")]
-    heals = [target for actor, target in actions.items()
-             if game["players"].get(actor, {}).get("alive")
-             and game["players"][actor]["role"] == "Доктор"]
-    visits = [target for actor, target in actions.items()
-              if game["players"].get(actor, {}).get("alive")
-              and game["players"][actor]["role"] == "Путана"]
-    killed: int | None = None
+             if players.get(actor, {}).get("alive") and actor not in blocked
+             and players[actor]["role"] in ("Мафия", "Дон")]
+    maniac_kills = [target for actor, target in actions.items()
+                    if players.get(actor, {}).get("alive") and actor not in blocked
+                    and players[actor]["role"] == "Маньяк"]
+    heals = {target for actor, target in actions.items()
+             if players.get(actor, {}).get("alive") and players[actor]["role"] == "Доктор" and actor not in blocked}
+    guards = {target: actor for actor, target in actions.items()
+              if players.get(actor, {}).get("alive") and players[actor]["role"] == "Телохранитель" and actor not in blocked}
+    lawyer_targets = {target for actor, target in actions.items()
+                      if players.get(actor, {}).get("alive") and players[actor]["role"] == "Адвокат"}
+    targets_to_kill: list[int] = []
     if kills:
-        killed = max(set(kills), key=kills.count)
-        if killed in heals or killed in visits:
-            killed = None
-    checks = [(actor, target) for actor, target in actions.items()
-              if game["players"].get(actor, {}).get("role") == "Шериф"]
-    for actor, target in checks:
-        await safe_send(actor, f"🕵️ Проверка: {display_name(target)} — {'мафия' if side(game['players'][target]['role']) == 'mafia' else 'не мафия'}.")
-    if killed is not None and game["players"][killed]["alive"]:
-        game["players"][killed]["alive"] = False
-        player_to_chat.pop(killed, None)
-        await safe_send(chat_id, f"☠️ Ночью погиб {display_name(killed)}. Его роль: <b>{game['players'][killed]['role']}</b>.")
+        targets_to_kill.append(max(set(kills), key=kills.count))
+    targets_to_kill.extend(maniac_kills[:1])
+    died: set[int] = set()
+    for target in targets_to_kill:
+        if target in heals:
+            continue
+        if target in guards:
+            guard_id = guards[target]
+            if players[guard_id]["alive"]:
+                died.add(guard_id)
+            continue
+        if players.get(target, {}).get("alive"):
+            if players[target]["role"] == "Счастливчик" and not players[target].get("lucky_used") and random.random() < 0.5:
+                players[target]["lucky_used"] = True
+                continue
+            died.add(target)
+    for actor, target in actions.items():
+        if not players.get(actor, {}).get("alive") or actor in blocked or target not in players:
+            continue
+        role = players[actor]["role"]
+        if role in ("Комиссар", "Сержант") and role_action(role, game) == "check":
+            masked = target in lawyer_targets
+            is_mafia = side(players[target]["role"]) == "mafia" and not masked
+            await safe_send(actor, f"🕵️ Проверка: {display_name(target)} — {'мафия' if is_mafia else 'не мафия'}.")
+        elif role == "Журналист":
+            await safe_send(actor, f"📰 Проверка: {display_name(target)} — сторона «{ {'mafia':'мафия','town':'город','maniac':'одиночка'}[side(players[target]['role'])] }».")
+        elif role == "Бомж":
+            visitors = [display_name(a) for a, t in actions.items() if t == actor and a != actor]
+            await safe_send(actor, "👣 За вами приходили: " + (", ".join(visitors) if visitors else "никто не приходил") + ".")
+    for uid in died:
+        if uid in players:
+            players[uid]["alive"] = False
+            player_to_chat.pop(uid, None)
+    if died:
+        lines = [f"☠️ Ночью выбыл: {display_name(uid)}" +
+                 (f" · {escape(players[uid]['role'])}" if settings()["show_roles"] else "") for uid in died]
+        await safe_send(chat_id, "\n".join(lines))
     else:
-        await safe_send(chat_id, "🌅 Все пережили эту ночь.")
+        await safe_send(chat_id, "🌅 Все пережили ночь.")
     result = outcome(game)
     if result:
         await finish_game(chat_id, result)
-        return
-    await start_day(chat_id)
+    else:
+        await start_day(chat_id)
 
 
 async def start_day(chat_id: int) -> None:
@@ -272,35 +373,46 @@ async def start_day(chat_id: int) -> None:
     game["phase"] = "day"
     game["votes"] = {}
     candidates = [(uid, display_name(uid)) for uid in alive_players(game)]
-    await safe_send(chat_id, "☀️ <b>День!</b> Обсудите подозрения, затем проголосуйте. Голосование длится 30 секунд.",
+    await safe_send(chat_id, f"☀️ <b>День {game['round']}</b> · обсудите подозрения и голосуйте.",
                     reply_markup=player_keyboard(chat_id, "vote", candidates))
-    await asyncio.sleep(30)
-    if chat_id not in games:
-        return
-    await resolve_day(chat_id)
+    await asyncio.sleep(int(settings()["day_seconds"]))
+    if chat_id in games:
+        await resolve_day(chat_id)
 
 
 async def resolve_day(chat_id: int) -> None:
     game = games.get(chat_id)
     if not game:
         return
-    votes = game.get("votes", {})
     counts: dict[int, int] = {}
-    for voter, target in votes.items():
+    for voter, target in game.get("votes", {}).items():
         if voter in alive_players(game) and target in alive_players(game):
-            counts[target] = counts.get(target, 0) + 1
+            weight = 2 if game["players"][voter]["role"] == "Мэр" else 1
+            counts[target] = counts.get(target, 0) + weight
+    victim = None
     if counts:
-        max_votes = max(counts.values())
-        winners = [uid for uid, count in counts.items() if count == max_votes]
-        if len(winners) == 1:
-            victim = winners[0]
-            game["players"][victim]["alive"] = False
-            player_to_chat.pop(victim, None)
-            await safe_send(chat_id, f"⚖️ Город изгнал {display_name(victim)}. Его роль: <b>{game['players'][victim]['role']}</b>.")
-        else:
-            await safe_send(chat_id, "⚖️ Ничья в голосовании. Никто не изгнан.")
+        top = max(counts.values())
+        leaders = [uid for uid, amount in counts.items() if amount == top]
+        if len(leaders) == 1:
+            victim = leaders[0]
+    if victim is None:
+        await safe_send(chat_id, "⚖️ Ничья или нет голосов. Никто не изгнан.")
     else:
-        await safe_send(chat_id, "⚖️ Голосов не было. Никто не изгнан.")
+        game["players"][victim]["alive"] = False
+        player_to_chat.pop(victim, None)
+        role = game["players"][victim]["role"]
+        await safe_send(chat_id, f"⚖️ Город изгнал {display_name(victim)}" +
+                        (f" · {escape(role)}" if settings()["show_roles"] else "") + ".")
+        if role == "Самоубийца":
+            await finish_game(chat_id, "town", "Самоубийца добился своей цели: его изгнали днём.")
+            return
+        if role == "Камикадзе":
+            targets = [uid for uid in alive_players(game) if uid != victim]
+            if targets:
+                target = random.choice(targets)
+                game["players"][target]["alive"] = False
+                player_to_chat.pop(target, None)
+                await safe_send(chat_id, f"💥 Последний ход камикадзе: вместе с ним погиб {display_name(target)}.")
     result = outcome(game)
     if result:
         await finish_game(chat_id, result)
@@ -311,28 +423,77 @@ async def resolve_day(chat_id: int) -> None:
 async def begin_game(chat_id: int, starter_id: int) -> str:
     game = games.get(chat_id)
     if not game:
-        return "Лобби не найдено. Создайте его командой /new_game."
+        return "Сначала создай лобби: /game"
     if game["phase"] != "lobby":
-        return "Игра уже началась."
-    if len(game["players"]) < 4:
-        return "Для старта нужно минимум 4 игрока."
-    if starter_id not in game["players"] and starter_id != ADMIN_ID:
-        return "Начать игру может только участник лобби."
-    ids = list(game["players"])
-    roles = role_counts(len(ids))
-    random.shuffle(roles)
-    for uid, role in zip(ids, roles):
-        game["players"][uid]["role"] = role
-        game["players"][uid]["alive"] = True
+        return "Партия уже идёт."
+    if len(game["players"]) < int(settings()["min_players"]):
+        return f"Нужно минимум {settings()['min_players']} игрока."
+    if starter_id not in game["players"] and not is_admin(starter_id) and starter_id != game["host"]:
+        return "Начать может участник лобби или создатель."
+    # Preflight every DM before assigning any roles. Avoid half-started games.
+    failed: list[int] = []
+    for uid in game["players"]:
         try:
-            await bot.send_message(uid, f"🎭 Ваша роль в <b>{APP_NAME}</b>: <b>{role}</b>. " +
-                                   ("Играйте за мафию и скрывайте свою команду." if side(role) == "mafia" else "Найдите мафию и выживите."))  # type: ignore[union-attr]
+            await bot.send_message(uid, "🎭 Mafia Keep: партия начинается. Сейчас придёт ваша роль.")  # type: ignore[union-attr]
         except (TelegramForbiddenError, TelegramBadRequest):
-            return f"Не могу написать игроку {display_name(uid)} в личку. Пусть он откроет бота и нажмёт /start, затем повторите /start_game."
+            failed.append(uid)
+    if failed:
+        names = ", ".join(display_name(uid) for uid in failed)
+        return f"Не могу написать: {names}. Пусть каждый нажмёт /start в личке, затем повторите запуск."
+    ids = list(game["players"])
+    roles = build_roles(len(ids))
+    random.shuffle(roles)
+    game["test_mode_game"] = bool(settings()["test_mode"] and len(ids) == 2)
+    for uid, role in zip(ids, roles):
+        game["players"][uid].update(role=role, alive=True, lucky_used=False)
+        try:
+            await bot.send_message(uid, f"🎭 <b>Твоя роль: {escape(role)}</b>\n\n{escape(ROLE_DESCRIPTIONS.get(role, 'Найди свою цель.'))}")  # type: ignore[union-attr]
+        except (TelegramForbiddenError, TelegramBadRequest):
+            return f"Не удалось отправить роль игроку {display_name(uid)}. Проверьте личные сообщения."
     game["phase"] = "starting"
-    await safe_send(chat_id, "🎬 Роли распределены! Начинаем с ночи.")
+    await safe_send(chat_id, "🎭 Роли розданы. Город засыпает…")
     asyncio.create_task(start_night(chat_id))
-    return "Игра запущена."
+    return "Партия началась."
+
+
+def owner_keyboard() -> InlineKeyboardMarkup:
+    return kb([
+        [InlineKeyboardButton(text="📊 Статистика", callback_data="adm:stats"),
+         InlineKeyboardButton(text="🎮 Игры", callback_data="adm:games")],
+        [InlineKeyboardButton(text="⚙️ Настройки игры", callback_data="adm:settings"),
+         InlineKeyboardButton(text="🎭 Роли", callback_data="adm:roles")],
+        [InlineKeyboardButton(text="🧹 Сбросить все игры", callback_data="adm:reset")],
+        [InlineKeyboardButton(text="📣 Рассылка", callback_data="adm:broadcast")],
+        [InlineKeyboardButton(text="🚫 Управление банами", callback_data="adm:bans")],
+    ])
+
+
+def settings_keyboard() -> InlineKeyboardMarkup:
+    s = settings()
+    return kb([
+        [InlineKeyboardButton(text=f"Мин. игроков: {s['min_players']}", callback_data="noop"),
+         InlineKeyboardButton(text="−", callback_data="cfg:min:-1"), InlineKeyboardButton(text="+", callback_data="cfg:min:1")],
+        [InlineKeyboardButton(text=f"Макс. игроков: {s['max_players']}", callback_data="noop"),
+         InlineKeyboardButton(text="−", callback_data="cfg:max:-1"), InlineKeyboardButton(text="+", callback_data="cfg:max:1")],
+        [InlineKeyboardButton(text=f"Ночь: {s['night_seconds']}с", callback_data="noop"),
+         InlineKeyboardButton(text="−", callback_data="cfg:night:-5"), InlineKeyboardButton(text="+", callback_data="cfg:night:5")],
+        [InlineKeyboardButton(text=f"День: {s['day_seconds']}с", callback_data="noop"),
+         InlineKeyboardButton(text="−", callback_data="cfg:day:-5"), InlineKeyboardButton(text="+", callback_data="cfg:day:5")],
+        [InlineKeyboardButton(text=f"Регистрация: {s['registration_seconds']}с", callback_data="noop"),
+         InlineKeyboardButton(text="−", callback_data="cfg:reg:-30"), InlineKeyboardButton(text="+", callback_data="cfg:reg:30")],
+        [InlineKeyboardButton(text=f"Тест на 2 игрока: {'ВКЛ' if s['test_mode'] else 'ВЫКЛ'}", callback_data="cfg:toggle:test_mode")],
+        [InlineKeyboardButton(text=f"Показывать роль после смерти: {'ДА' if s['show_roles'] else 'НЕТ'}", callback_data="cfg:toggle:show_roles")],
+        [InlineKeyboardButton(text="⬅️ В панель", callback_data="adm:home")],
+    ])
+
+
+def roles_keyboard() -> InlineKeyboardMarkup:
+    rows = []
+    for role, key in ROLE_KEYS.items():
+        rows.append([InlineKeyboardButton(text=f"{'🟢' if settings()['roles_enabled'].get(key, True) else '⚫'} {role}",
+                                          callback_data=f"cfg:role:{key}")])
+    rows.append([InlineKeyboardButton(text="⬅️ В панель", callback_data="adm:home")])
+    return kb(rows)
 
 
 @router.message(CommandStart())
@@ -342,82 +503,87 @@ async def start(message: Message) -> None:
     touch_user(message.from_user)
     await save_data()
     if is_banned(message.from_user.id):
-        await message.answer("⛔ Вы заблокированы в Mafia Keep.")
+        await message.answer("⛔ Доступ закрыт.")
         return
     global bot_username
     bot_username = (await bot.get_me()).username or bot_username  # type: ignore[union-attr]
-    menu = main_menu_keyboard()
+    rows = [[InlineKeyboardButton(text="➕ Добавить в чат", url=f"https://t.me/{bot_username}?startgroup=true")]]
     if is_admin(message.from_user.id):
-        menu.inline_keyboard.append([InlineKeyboardButton(text="🛡 Админ-панель", callback_data="admin_panel")])
-    await message.answer(
-        "🕵️ <b>Добро пожаловать в Mafia Keep!</b>\n\n"
-        "Организуйте игру в групповом чате, собирайте игроков, получайте роли и выясняйте, кто скрывается за маской мафии.\n\n"
-        "1. Добавьте бота в группу.\n2. В группе отправьте /new_game.\n3. Участники нажимают «Записаться».\n4. От 4 игроков используйте /start_game.\n\n"
-        "Важно: каждый участник должен открыть бота в личке и нажать /start, чтобы получать роль и ночные действия.",
-        reply_markup=menu,
-    )
+        rows.append([InlineKeyboardButton(text="🛡 Панель владельца", callback_data="adm:home")])
+    await message.answer("🎭 <b>Mafia Keep</b>\nСоздай игру в группе командой /game.", reply_markup=kb(rows))
 
 
-@router.callback_query(F.data == "rules")
-async def rules_callback(callback: CallbackQuery) -> None:
-    await callback.answer()
-    if callback.message:
-        await callback.message.answer("📜 <b>Правила Mafia Keep</b>\nМафия побеждает, когда мафии не меньше мирных. Мирные побеждают, когда вся мафия выбывает. Ночные действия доступны в личке.", reply_markup=main_menu_keyboard())
-
-
-@router.message(Command("new_game"))
+@router.message(Command("game", "new_game", "mafia"))
 async def new_game(message: Message) -> None:
-    if not message.from_user or message.chat.type == "private":
-        await message.answer("Создать лобби можно в групповом чате.")
+    if not message.from_user or message.chat.type == ChatType.PRIVATE:
+        await message.answer("Запусти /game в группе.")
         return
     if is_banned(message.from_user.id):
         return
     if message.chat.id in games:
-        await message.answer("В этом чате уже есть игра. Используйте /game_status или завершите текущую игру.")
+        await message.answer("Игра уже создана в этом чате.")
         return
     touch_user(message.from_user)
-    games[message.chat.id] = {"phase": "lobby", "host": message.from_user.id,
-                              "players": {}, "round": 0, "votes": {}, "night_actions": {},
-                              "lobby_message_id": None}
-    sent = await message.answer(lobby_keyboard(message.chat.id), reply_markup=lobby_markup(message.chat.id))
+    games[message.chat.id] = {
+        "phase": "lobby", "host": message.from_user.id, "players": {}, "round": 0,
+        "votes": {}, "night_actions": {}, "lobby_message_id": None,
+    }
+    sent = await message.answer(lobby_text(message.chat.id), reply_markup=lobby_markup(message.chat.id))
     games[message.chat.id]["lobby_message_id"] = sent.message_id
+    # Registration closes automatically. Host can start earlier once the minimum is reached.
+    asyncio.create_task(registration_timeout(message.chat.id, sent.message_id))
+
+
+async def registration_timeout(chat_id: int, message_id: int) -> None:
+    await asyncio.sleep(int(settings()["registration_seconds"]))
+    game = games.get(chat_id)
+    if game and game["phase"] == "lobby" and game.get("lobby_message_id") == message_id:
+        await safe_send(chat_id, "⌛ Регистрация завершена по времени. Создайте новое лобби командой /game.")
+        for uid in game["players"]:
+            player_to_chat.pop(uid, None)
+        games.pop(chat_id, None)
 
 
 @router.message(Command("start_game"))
 async def start_game_command(message: Message) -> None:
     if not message.from_user:
         return
-    result = await begin_game(message.chat.id, message.from_user.id)
-    await message.answer(result)
+    await message.answer(await begin_game(message.chat.id, message.from_user.id))
+
+
+@router.callback_query(F.data == "noop")
+async def noop_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
 
 
 @router.callback_query(F.data.startswith("join:"))
 async def join_callback(callback: CallbackQuery) -> None:
-    if not callback.from_user or not callback.data or not callback.message:
+    if not callback.from_user or not callback.data:
         return
+    uid = callback.from_user.id
     touch_user(callback.from_user)
-    if is_banned(callback.from_user.id):
-        await callback.answer("Вы заблокированы.", show_alert=True)
+    if is_banned(uid):
+        await callback.answer("Доступ закрыт.", show_alert=True)
         return
     chat_id = int(callback.data.split(":")[1])
     game = games.get(chat_id)
     if not game or game["phase"] != "lobby":
-        await callback.answer("Регистрация уже закрыта.", show_alert=True)
+        await callback.answer("Регистрация закрыта.", show_alert=True)
         return
-    if callback.from_user.id in game["players"]:
-        await callback.answer("Вы уже в лобби.")
+    if uid in game["players"]:
+        await callback.answer("Ты уже в игре.")
         return
-    if callback.from_user.id in player_to_chat:
-        await callback.answer("Вы уже участвуете в другой игре.", show_alert=True)
+    if uid in player_to_chat:
+        await callback.answer("Ты уже записан в другую игру.", show_alert=True)
         return
-    if len(game["players"]) >= 20:
-        await callback.answer("Лобби заполнено: максимум 20 игроков.", show_alert=True)
+    if len(game["players"]) >= int(settings()["max_players"]):
+        await callback.answer("Мест больше нет.", show_alert=True)
         return
-    game["players"][callback.from_user.id] = {"role": "Не назначена", "alive": True}
-    player_to_chat[callback.from_user.id] = chat_id
+    game["players"][uid] = {"role": "Не назначена", "alive": True}
+    player_to_chat[uid] = chat_id
     await save_data()
-    await callback.answer("Вы записаны!")
-    await announce_state(chat_id)
+    await callback.answer("Ты в игре!")
+    await refresh_lobby(chat_id)
 
 
 @router.callback_query(F.data.startswith("leave:"))
@@ -426,54 +592,176 @@ async def leave_callback(callback: CallbackQuery) -> None:
         return
     chat_id = int(callback.data.split(":")[1])
     game = games.get(chat_id)
-    if game and game["phase"] == "lobby" and callback.from_user.id in game["players"]:
-        game["players"].pop(callback.from_user.id, None)
-        player_to_chat.pop(callback.from_user.id, None)
-        await callback.answer("Вы вышли из лобби.")
-        await announce_state(chat_id)
+    uid = callback.from_user.id
+    if game and game["phase"] == "lobby" and uid in game["players"]:
+        game["players"].pop(uid, None)
+        player_to_chat.pop(uid, None)
+        await callback.answer("Ты вышел.")
+        await refresh_lobby(chat_id)
     else:
-        await callback.answer("Выйти сейчас нельзя.", show_alert=True)
+        await callback.answer("Сейчас выйти нельзя.", show_alert=True)
 
 
 @router.callback_query(F.data.startswith("begin:"))
 async def begin_callback(callback: CallbackQuery) -> None:
     if not callback.from_user or not callback.data:
         return
-    chat_id = int(callback.data.split(":")[1])
-    await callback.answer(await begin_game(chat_id, callback.from_user.id), show_alert=True)
+    await callback.answer(await begin_game(int(callback.data.split(":")[1]), callback.from_user.id), show_alert=True)
 
 
-@router.callback_query(F.data.startswith(("vote:", "kill:", "check:", "heal:", "visit:")))
+@router.callback_query(F.data.startswith(("vote:", "kill:", "check:", "heal:", "maniac:", "visit:", "lawyer:", "observe:", "journalist:", "guard:")))
 async def action_callback(callback: CallbackQuery) -> None:
     if not callback.from_user or not callback.data:
         return
-    action, chat_id_text, target_text = callback.data.split(":")
-    chat_id, target = int(chat_id_text), int(target_text)
+    action, chat_text, target_text = callback.data.split(":")
+    chat_id, target, uid = int(chat_text), int(target_text), callback.from_user.id
     game = games.get(chat_id)
-    uid = callback.from_user.id
-    if not game or uid not in game["players"] or not game["players"][uid]["alive"]:
-        await callback.answer("Вы не участвуете в активной игре.", show_alert=True)
+    if not game or uid not in game["players"] or not game["players"][uid].get("alive"):
+        await callback.answer("Ты не участвуешь в этой игре.", show_alert=True)
         return
-    if target not in game["players"] or not game["players"][target]["alive"] or target == uid:
-        await callback.answer("Эта цель недоступна.", show_alert=True)
+    if target not in game["players"] or not game["players"][target].get("alive") or target == uid:
+        await callback.answer("Цель недоступна.", show_alert=True)
         return
+    player = game["players"][uid]
     if action == "vote":
         if game["phase"] != "day":
-            await callback.answer("Голосовать можно только днём.", show_alert=True)
+            await callback.answer("Голосовать можно днём.", show_alert=True)
             return
+        player["vote_target"] = target
         game["votes"][uid] = target
-        await callback.answer(f"Ваш голос: {display_name(target)}")
-    else:
-        if game["phase"] != "night":
-            await callback.answer("Ночные действия доступны только ночью.", show_alert=True)
-            return
-        allowed = {"kill": ("Мафия", "Дон"), "check": ("Шериф",),
-                   "heal": ("Доктор",), "visit": ("Путана",)}
-        if game["players"][uid]["role"] not in allowed[action]:
-            await callback.answer("Ваша роль не может выполнять это действие.", show_alert=True)
-            return
-        game["night_actions"][uid] = target
-        await callback.answer("Действие принято.")
+        await callback.answer(f"Голос принят: {display_name(target)}")
+        return
+    if game["phase"] != "night":
+        await callback.answer("Это действие доступно только ночью.", show_alert=True)
+        return
+    expected = role_action(player["role"], game)
+    if action != expected:
+        await callback.answer("Твоя роль не может выполнить это действие.", show_alert=True)
+        return
+    game["night_actions"][uid] = target
+    await callback.answer("Принято.")
+
+
+@router.message(Command("profile"))
+async def profile_command(message: Message) -> None:
+    if not message.from_user:
+        return
+    rec = touch_user(message.from_user)
+    await save_data()
+    await message.answer(f"🎭 <b>{escape(message.from_user.full_name)}</b>\n"
+                         f"Партий: {rec.get('games', 0)} · Побед: {rec.get('wins', 0)} · Поражений: {rec.get('losses', 0)}")
+
+
+@router.message(Command("leaderboard"))
+async def leaderboard_command(message: Message) -> None:
+    ordered = sorted(data["users"].values(), key=lambda u: (int(u.get("wins", 0)), int(u.get("games", 0))), reverse=True)[:10]
+    lines = ["🏆 <b>Топ победителей</b>"]
+    lines.extend(f"{i}. {display_name(int(u.get('user_id', 0)))} — {int(u.get('wins', 0))}" for i, u in enumerate(ordered, 1))
+    await message.answer("\n".join(lines))
+
+
+@router.message(Command("admin"))
+async def admin_command(message: Message) -> None:
+    if not message.from_user or not is_admin(message.from_user.id):
+        await message.answer("⛔ Нет доступа.")
+        return
+    await message.answer("🛡 <b>Mafia Keep · владелец</b>", reply_markup=owner_keyboard())
+
+
+@router.callback_query(F.data.startswith("adm:"))
+async def admin_callback(callback: CallbackQuery) -> None:
+    if not callback.from_user or not is_admin(callback.from_user.id):
+        await callback.answer("Только владелец.", show_alert=True)
+        return
+    if not callback.data:
+        return
+    section = callback.data.split(":", 1)[1]
+    await callback.answer()
+    if not callback.message:
+        return
+    if section in ("home", "home"):
+        await callback.message.edit_text("🛡 <b>Mafia Keep · владелец</b>", reply_markup=owner_keyboard())
+    elif section == "stats":
+        await callback.message.edit_text(
+            f"📊 <b>Статистика</b>\nПользователей: {len(data['users'])}\nАктивных игр: {len(games)}\n"
+            f"Банов: {len(data['bans'])}\nЗавершено партий: {data['totals']['games']}\n"
+            f"Аптайм процесса: {int(time.monotonic() - online_since)} сек.",
+            reply_markup=kb([[InlineKeyboardButton(text="⬅️ Назад", callback_data="adm:home")]]))
+    elif section == "games":
+        body = "\n".join(f"• <code>{cid}</code> · {g['phase']} · {len(g['players'])} игроков"
+                          for cid, g in games.items()) or "Активных игр нет."
+        await callback.message.edit_text("🎮 <b>Игры</b>\n" + body,
+                                         reply_markup=kb([[InlineKeyboardButton(text="⬅️ Назад", callback_data="adm:home")]]))
+    elif section == "settings":
+        await callback.message.edit_text("⚙️ <b>Настройки игры</b>", reply_markup=settings_keyboard())
+    elif section == "roles":
+        await callback.message.edit_text("🎭 <b>Роли · нажми, чтобы включить или выключить</b>",
+                                         reply_markup=roles_keyboard())
+    elif section == "reset":
+        for game in games.values():
+            for uid in game["players"]:
+                player_to_chat.pop(uid, None)
+        games.clear()
+        await callback.message.edit_text("🧹 Все активные игры сброшены.", reply_markup=owner_keyboard())
+    elif section == "broadcast":
+        await callback.message.edit_text("📣 Отправь команду /broadcast текст объявления.",
+                                         reply_markup=kb([[InlineKeyboardButton(text="⬅️ Назад", callback_data="adm:home")]]))
+    elif section == "bans":
+        body = "\n".join(f"• <code>{uid}</code> — {escape(str(info.get('reason', 'без причины')))}"
+                          for uid, info in data["bans"].items()) or "Блокировок нет."
+        await callback.message.edit_text("🚫 <b>Блокировки</b>\n" + body +
+                                         "\n\nКоманды: /ban_player ID причина · /unban_player ID",
+                                         reply_markup=kb([[InlineKeyboardButton(text="⬅️ Назад", callback_data="adm:home")]]))
+
+
+@router.callback_query(F.data.startswith("cfg:"))
+async def config_callback(callback: CallbackQuery) -> None:
+    if not callback.from_user or not is_admin(callback.from_user.id) or not callback.data:
+        await callback.answer("Только владелец.", show_alert=True)
+        return
+    parts = callback.data.split(":")
+    if len(parts) == 3 and parts[1] == "toggle":
+        key = parts[2]
+        settings()[key] = not bool(settings()[key])
+    elif len(parts) == 3 and parts[1] == "role":
+        key = parts[2]
+        settings()["roles_enabled"][key] = not settings()["roles_enabled"].get(key, True)
+    elif len(parts) == 3:
+        key, delta = parts[1], int(parts[2])
+        if key == "min":
+            settings()["min_players"] = max(2, min(int(settings()["max_players"]), int(settings()["min_players"]) + delta))
+        elif key == "max":
+            settings()["max_players"] = max(int(settings()["min_players"]), min(30, int(settings()["max_players"]) + delta))
+        elif key == "night":
+            settings()["night_seconds"] = max(10, min(120, int(settings()["night_seconds"]) + delta))
+        elif key == "day":
+            settings()["day_seconds"] = max(10, min(180, int(settings()["day_seconds"]) + delta))
+        elif key == "reg":
+            settings()["registration_seconds"] = max(60, min(1800, int(settings()["registration_seconds"]) + delta))
+    await save_data()
+    await callback.answer("Настройка сохранена.")
+    if callback.message:
+        if len(parts) >= 2 and parts[1] == "role":
+            await callback.message.edit_reply_markup(reply_markup=roles_keyboard())
+        else:
+            await callback.message.edit_reply_markup(reply_markup=settings_keyboard())
+
+
+@router.message(Command("set_min_players"))
+async def set_min_players(message: Message) -> None:
+    if not message.from_user or not is_admin(message.from_user.id):
+        return
+    parts = (message.text or "").split()
+    if len(parts) != 2 or not parts[1].isdigit():
+        await message.answer("Использование: /set_min_players 2")
+        return
+    value = int(parts[1])
+    if not 2 <= value <= int(settings()["max_players"]):
+        await message.answer("Минимум: 2; значение не должно превышать максимум.")
+        return
+    settings()["min_players"] = value
+    await save_data()
+    await message.answer(f"Минимум игроков: {value}.")
 
 
 @router.message(Command("ban_player"))
@@ -482,21 +770,23 @@ async def ban_player(message: Message) -> None:
         return
     parts = (message.text or "").split(maxsplit=2)
     if len(parts) < 2 or not parts[1].isdigit():
-        await message.answer("Использование: /ban_player USER_ID [причина]")
+        await message.answer("Формат: /ban_player ID причина")
         return
     uid = int(parts[1])
+    if uid == ADMIN_ID:
+        await message.answer("Владельца нельзя заблокировать.")
+        return
     reason = parts[2] if len(parts) > 2 else "нарушение правил"
-    data["bans"][str(uid)] = {"reason": reason, "by": message.from_user.id,
-                              "at": datetime.now(timezone.utc).isoformat()}
+    data["bans"][str(uid)] = {"reason": reason, "by": ADMIN_ID, "at": datetime.now(timezone.utc).isoformat()}
     if str(uid) in data["users"]:
         data["users"][str(uid)]["banned"] = True
-    for chat_id, game in list(games.items()):
+    for cid, game in list(games.items()):
         if uid in game["players"]:
             game["players"].pop(uid, None)
             player_to_chat.pop(uid, None)
-            await safe_send(chat_id, f"⛔ Игрок {display_name(uid)} заблокирован администратором.")
+            await refresh_lobby(cid)
     await save_data()
-    await message.answer(f"⛔ Игрок {uid} заблокирован. Причина: {reason}")
+    await message.answer(f"⛔ Игрок {uid} заблокирован.")
 
 
 @router.message(Command("unban_player"))
@@ -505,237 +795,94 @@ async def unban_player(message: Message) -> None:
         return
     parts = (message.text or "").split(maxsplit=1)
     if len(parts) != 2 or not parts[1].isdigit():
-        await message.answer("Использование: /unban_player USER_ID")
+        await message.answer("Формат: /unban_player ID")
         return
     uid = int(parts[1])
     data["bans"].pop(str(uid), None)
     if str(uid) in data["users"]:
         data["users"][str(uid)]["banned"] = False
     await save_data()
-    await message.answer(f"✅ Блокировка игрока {uid} снята.")
+    await message.answer(f"✅ Блокировка {uid} снята.")
+
+
+@router.message(Command("stat"))
+async def stat_command(message: Message) -> None:
+    if message.from_user and is_admin(message.from_user.id):
+        await message.answer(f"Пользователей: {len(data['users'])}\nИгры: {len(games)}\nБаны: {len(data['bans'])}\nЗавершено: {data['totals']['games']}")
 
 
 @router.message(Command("game_status"))
 async def game_status(message: Message) -> None:
     if not message.from_user or not is_admin(message.from_user.id):
         return
-    if message.chat.type == "private":
-        if len(games) == 0:
-            await message.answer("Активных игр нет.")
-        else:
-            await message.answer("Активные игры:\n" + "\n".join(
-                f"Чат {cid}: фаза={g['phase']}, игроков={len(g['players'])}"
-                for cid, g in games.items()))
+    if message.chat.type == ChatType.PRIVATE:
+        body = "\n".join(f"{cid}: {g['phase']} · {len(g['players'])} игроков" for cid, g in games.items()) or "Активных игр нет."
+        await message.answer(body)
         return
     game = games.pop(message.chat.id, None)
     if game:
         for uid in game["players"]:
             player_to_chat.pop(uid, None)
-        await message.answer("♻️ Игра в этом чате сброшена.")
+        await message.answer("Игра в этом чате сброшена.")
     else:
-        await message.answer("В этом чате нет активной игры.")
+        await message.answer("Игры нет.")
 
 
-@router.message(Command("stat"))
-async def stats(message: Message) -> None:
-    if not message.from_user or not is_admin(message.from_user.id):
+@router.message(Command("cancel_game"))
+async def cancel_game(message: Message) -> None:
+    if not message.from_user or message.chat.type == ChatType.PRIVATE:
+        await message.answer("Команда работает в группе.")
         return
-    users = len(data["users"])
-    banned = len(data["bans"])
-    await message.answer(f"📊 <b>{APP_NAME}</b>\nИгроков в базе: {users}\nАктивных игр: {len(games)}\nБлокировок: {banned}\nВсего завершённых игр: {data['totals'].get('games', 0)}\nВремя процесса: {int(time.monotonic() - online_since)} сек.")
-
-
-@router.message(Command("profile"))
-async def profile(message: Message) -> None:
-    if not message.from_user:
+    game = games.get(message.chat.id)
+    if not game:
+        await message.answer("Игры нет.")
         return
-    record = touch_user(message.from_user)
-    await save_data()
-    if is_banned(message.from_user.id):
-        await message.answer("⛔ Вы заблокированы в Mafia Keep.")
+    if message.from_user.id not in (game.get("host"), ADMIN_ID):
+        await message.answer("Отменить может создатель или владелец.")
         return
-    await message.answer(
-        f"👤 <b>Профиль {message.from_user.full_name}</b>\n"
-        f"🎮 Игр: {record.get('games', 0)}\n🏆 Побед: {record.get('wins', 0)}\n"
-        f"💔 Поражений: {record.get('losses', 0)}\n"
-        f"📈 Винрейт: {round(record.get('wins', 0) * 100 / max(1, record.get('games', 0)))}%",
-        reply_markup=main_menu_keyboard()
-    )
-
-
-
-def main_menu_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="➕ Добавить в чат", url=f"https://t.me/{bot_username}?startgroup=true")],
-        [InlineKeyboardButton(text="👤 Мой профиль", callback_data="my_profile"),
-         InlineKeyboardButton(text="📜 Правила", callback_data="rules")],
-        [InlineKeyboardButton(text="🎭 Как начать игру", callback_data="how_to")],
-    ])
-
-
-@router.callback_query(F.data == "my_profile")
-async def profile_button(callback: CallbackQuery) -> None:
-    if not callback.from_user:
-        return
-    rec=touch_user(callback.from_user)
-    await save_data()
-    if is_banned(callback.from_user.id):
-        await callback.answer("Вы заблокированы.", show_alert=True)
-        return
-    await callback.answer()
-    if callback.message:
-        await callback.message.answer(
-            f"👤 <b>ПРОФИЛЬ ИГРОКА</b>\\nИмя: {callback.from_user.full_name}\\n"
-            f"🎮 Игр: {rec.get('games',0)} · 🏆 Побед: {rec.get('wins',0)} · 💔 Поражений: {rec.get('losses',0)}\\n"
-            f"📈 Винрейт: {round(rec.get('wins',0)*100/max(1,rec.get('games',0)))}%",
-            reply_markup=main_menu_keyboard())
-
-
-@router.callback_query(F.data == "how_to")
-async def how_to_callback(callback: CallbackQuery) -> None:
-    await callback.answer()
-    if callback.message:
-        await callback.message.answer(
-            "🎭 <b>Как начать игру</b>\\n1. Добавьте бота в группу.\\n"
-            "2. Напишите «старт мафия» или /new_game.\\n"
-            "3. Игроки нажимают «Зарегистрироваться» — список обновляется прямо в сообщении.\\n"
-            "4. От 4 игроков нажмите «Начать мафию».\\n"
-            "5. Каждый участник должен нажать /start в личке, чтобы получать роль.\\n"
-            "🌙 Ночью мафия выбирает жертву, шериф проверяет, доктор лечит. Днём — обсуждение и голосование.",
-            reply_markup=main_menu_keyboard())
-
-
-@router.callback_query(F.data == "admin_panel")
-async def admin_panel_callback(callback: CallbackQuery) -> None:
-    if not callback.from_user or not is_admin(callback.from_user.id):
-        await callback.answer("Доступ только владельцу.", show_alert=True)
-        return
-    await callback.answer()
-    if callback.message:
-        await callback.message.answer(
-            f"🛡 <b>ПАНЕЛЬ ВЛАДЕЛЬЦА · MAFIA KEEP</b>\\nПользователей: {len(data['users'])}\\n"
-            f"Активных игр: {len(games)}\\nБлокировок: {len(data['bans'])}\\n"
-            f"Завершённых партий: {data['totals'].get('games',0)}",
-            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text="📊 Статистика", callback_data="admin_stats")],
-                [InlineKeyboardButton(text="🎮 Активные игры", callback_data="admin_games")],
-                [InlineKeyboardButton(text="📣 Рассылка", callback_data="admin_broadcast_help")]]))
-
-
-@router.callback_query(F.data == "admin_stats")
-async def admin_stats_callback(callback: CallbackQuery) -> None:
-    if not callback.from_user or not is_admin(callback.from_user.id):
-        await callback.answer("Доступ запрещён.", show_alert=True)
-        return
-    await callback.answer()
-    if callback.message:
-        await callback.message.answer(
-            f"📊 <b>СТАТИСТИКА</b>\\nПользователей: {len(data['users'])}\\nАктивных игр: {len(games)}\\n"
-            f"Блокировок: {len(data['bans'])}\\nЗавершено партий: {data['totals'].get('games',0)}\\n"
-            f"Время процесса: {int(time.monotonic()-online_since)} сек.",
-            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text="⬅️ Админ-панель", callback_data="admin_panel")]]))
-
-
-@router.callback_query(F.data == "admin_games")
-async def admin_games_callback(callback: CallbackQuery) -> None:
-    if not callback.from_user or not is_admin(callback.from_user.id):
-        await callback.answer("Доступ запрещён.", show_alert=True)
-        return
-    await callback.answer()
-    if callback.message:
-        txt="🎮 Активных игр нет." if not games else "🎮 <b>АКТИВНЫЕ ИГРЫ</b>\\n"+"\\n".join(
-            f"• <code>{cid}</code> — фаза {g['phase']}, игроков {len(g['players'])}" for cid,g in games.items())
-        await callback.message.answer(txt,reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="⬅️ Админ-панель",callback_data="admin_panel")]]))
-
-
-@router.callback_query(F.data == "admin_broadcast_help")
-async def admin_broadcast_help(callback: CallbackQuery) -> None:
-    if not callback.from_user or not is_admin(callback.from_user.id):
-        await callback.answer("Доступ запрещён.", show_alert=True)
-        return
-    await callback.answer()
-    if callback.message:
-        await callback.message.answer("📣 Рассылка: отправьте в личку команду /broadcast Текст объявления.")
+    for uid in game["players"]:
+        player_to_chat.pop(uid, None)
+    games.pop(message.chat.id, None)
+    await message.answer("Партия отменена.")
 
 
 @router.message(Command("broadcast"))
 async def broadcast_command(message: Message) -> None:
     if not message.from_user or not is_admin(message.from_user.id):
         return
-    body=(message.text or "").partition(" ")[2].strip()
+    body = (message.text or "").partition(" ")[2].strip()
     if not body:
-        await message.answer("Использование: /broadcast Текст объявления")
+        await message.answer("Формат: /broadcast текст")
         return
-    sent=failed=0
-    await message.answer("📣 Начинаю рассылку…")
-    for key in list(data["users"]):
+    sent = failed = 0
+    await message.answer("Рассылка запущена.")
+    for uid in list(data["users"]):
         try:
-            await bot.send_message(int(key),f"📣 <b>Mafia Keep</b>\\n\\n{body}",reply_markup=main_menu_keyboard())  # type: ignore[union-attr]
-            sent+=1
-        except (TelegramForbiddenError,TelegramBadRequest):
-            failed+=1
-        await asyncio.sleep(0.04)
-    await message.answer(f"Рассылка завершена. Доставлено: {sent}; ошибок: {failed}.")
-
-
-@router.message(Command("admin"))
-async def admin_command(message: Message) -> None:
-    if not message.from_user or not is_admin(message.from_user.id):
-        await message.answer("⛔ Панель доступна только владельцу.")
-        return
-    await message.answer("🛡 <b>Панель владельца</b>",reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📊 Статистика",callback_data="admin_stats")],
-        [InlineKeyboardButton(text="🎮 Активные игры",callback_data="admin_games")],
-        [InlineKeyboardButton(text="📣 Рассылка",callback_data="admin_broadcast_help")]]))
-
-
-@router.message(Command("cancel_game"))
-async def cancel_game_command(message: Message) -> None:
-    if not message.from_user or message.chat.type == "private":
-        await message.answer("Команду нужно отправить в группе.")
-        return
-    game=games.get(message.chat.id)
-    if not game:
-        await message.answer("Активной игры нет.")
-        return
-    if message.from_user.id not in (game.get("host"),ADMIN_ID):
-        await message.answer("Отменить игру может создатель лобби или владелец бота.")
-        return
-    for uid in game["players"]:
-        player_to_chat.pop(uid,None)
-    games.pop(message.chat.id,None)
-    await message.answer("🛑 <b>Игра отменена.</b>",reply_markup=main_menu_keyboard())
-
-
-@router.message(Command("leaderboard"))
-async def leaderboard_command(message: Message) -> None:
-    ordered=sorted(data["users"].values(),key=lambda u:(int(u.get("wins",0)),int(u.get("games",0))),reverse=True)[:10]
-    lines=["🏆 <b>ТОП-10 ИГРОКОВ</b>"]
-    for i,user in enumerate(ordered,1):
-        lines.append(f"{i}. {display_name(int(user.get('user_id',0)))} — {int(user.get('wins',0))} побед")
-    await message.answer("\\n".join(lines),reply_markup=main_menu_keyboard())
+            await bot.send_message(int(uid), f"📣 <b>Mafia Keep</b>\n\n{escape(body)}")  # type: ignore[union-attr]
+            sent += 1
+        except (TelegramForbiddenError, TelegramBadRequest):
+            failed += 1
+        await asyncio.sleep(0.05)
+    await message.answer(f"Готово. Доставлено: {sent}; ошибок: {failed}.")
 
 
 @router.message(F.text)
 async def text_shortcuts(message: Message) -> None:
     if not message.from_user or not message.text or message.text.startswith("/"):
         return
-    phrase=" ".join(message.text.lower().replace("ё","е").split())
-    starts={
-        "старт мафия","старт мафии","старт мафию","начать мафию","начать мафия",
-        "запустить мафию","запустить мафия","регистрация на мафию","регистрация мафии",
-        "создать мафию","создать игру мафия","мафия старт","мафия стартуй",
-        "го мафия","го в мафию","игра мафия","начинаем мафию","начинаем мафия",
-        "открыть регистрацию мафия","открыть регистрацию на мафию"
+    phrase = " ".join(message.text.lower().replace("ё", "е").strip().split())
+    normalized = re.sub(r"[!.,?]+$", "", phrase)
+    triggers = {
+        "старт мафия", "старт мафии", "старт мафию", "старт мафиии",
+        "начать мафию", "начать мафия", "начни мафию", "запустить мафию",
+        "запусти мафию", "регистрация на мафию", "регистрация мафии",
+        "создать мафию", "создать игру мафия", "мафия старт", "го мафия",
+        "го в мафию", "игра мафия", "начинаем мафию", "начинаем мафия",
+        "открыть регистрацию мафия", "открыть регистрацию на мафию",
+        "мафия", "играем в мафию", "погнали мафия", "го в мафку",
     }
-    if phrase in starts and message.chat.type != "private":
+    if message.chat.type != ChatType.PRIVATE and normalized in triggers:
         await new_game(message)
-    elif phrase in {"профиль","мой профиль","статистика мафия"}:
-        await profile(message)
-    elif phrase in {"правила мафии","правила мафия","как играть в мафию"}:
-        await message.answer("📜 <b>Правила Mafia Keep</b>\\nМафия побеждает, когда мафии не меньше мирных; мирные — когда вся мафия выбыла. Ночью мафия выбирает жертву, шериф проверяет, доктор лечит; днём город голосует.",reply_markup=main_menu_keyboard())
 
 
 @router.message()
@@ -744,19 +891,16 @@ async def remember_user(message: Message) -> None:
         return
     touch_user(message.from_user)
     await save_data()
-    if is_banned(message.from_user.id):
-        return
 
 
 async def timed_shutdown() -> None:
-    await asyncio.sleep(max(60, CONTAINER_SECONDS))
-    log.warning("Container time limit reached; gracefully stopping bot.")
+    await asyncio.sleep(CONTAINER_SECONDS)
+    log.warning("Container runtime limit reached; stopping gracefully.")
     try:
-        await bot.send_message(ADMIN_ID, "♻️ Mafia Keep: контейнер обновляется. Статистика и баны будут сохранены.")  # type: ignore[union-attr]
+        await bot.send_message(ADMIN_ID, "♻️ Mafia Keep сохраняет данные перед перезапуском.")  # type: ignore[union-attr]
     except Exception:
-        log.exception("Could not notify admin about shutdown")
+        log.exception("Owner notification failed")
     await save_data()
-    shutdown_event.set()
     await dp.stop_polling()
 
 
@@ -767,8 +911,8 @@ async def run() -> None:
     bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     me = await bot.get_me()
     bot_username = me.username or bot_username
-    log.info("%s starting as @%s; owner=%s", APP_NAME, me.username, ADMIN_ID)
-    shutdown_task = asyncio.create_task(timed_shutdown(), name="container-shutdown-timer")
+    log.info("%s started as @%s; owner=%s", APP_NAME, me.username, ADMIN_ID)
+    shutdown_task = asyncio.create_task(timed_shutdown())
     try:
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), close_bot_session=False)
     finally:
@@ -781,4 +925,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(run())
     except KeyboardInterrupt:
-        log.info("Stopped by keyboard interrupt")
+        log.info("Stopped")
