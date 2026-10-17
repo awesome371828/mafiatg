@@ -322,6 +322,8 @@ async def start_night(chat_id: int) -> None:
     game["night_actions"] = {}
     game["votes"] = {}
     game["round"] += 1
+    game["phase_deadline"] = time.time() + int(settings()["night_seconds"])
+    await save_data()
     await safe_send(chat_id, f"🌙 <b>Ночь {game['round']}</b> · город засыпает.")
     alive = alive_players(game)
     targets = [(uid, display_name(uid)) for uid in alive]
@@ -336,8 +338,8 @@ async def start_night(chat_id: int) -> None:
                                    reply_markup=player_keyboard(chat_id, action, choices))  # type: ignore[union-attr]
         except (TelegramForbiddenError, TelegramBadRequest):
             await safe_send(chat_id, f"⚠️ {display_name(uid)}: открой личку с ботом и нажми /start.")
-    await asyncio.sleep(int(settings()["night_seconds"]))
-    if chat_id in games:
+    await asyncio.sleep(max(1, float(game.get("phase_deadline") or time.time()) - time.time()))
+    if chat_id in games and games[chat_id].get("phase") == "night":
         await resolve_night(chat_id)
 
 
@@ -417,11 +419,13 @@ async def start_day(chat_id: int) -> None:
         return
     game["phase"] = "day"
     game["votes"] = {}
+    game["phase_deadline"] = time.time() + int(settings()["day_seconds"])
     candidates = [(uid, display_name(uid)) for uid in alive_players(game)]
+    await save_data()
     await safe_send(chat_id, f"☀️ <b>День {game['round']}</b> · обсудите подозрения и голосуйте.",
                     reply_markup=player_keyboard(chat_id, "vote", candidates))
-    await asyncio.sleep(int(settings()["day_seconds"]))
-    if chat_id in games:
+    await asyncio.sleep(max(1, float(game.get("phase_deadline") or time.time()) - time.time()))
+    if chat_id in games and games[chat_id].get("phase") == "day":
         await resolve_day(chat_id)
 
 
@@ -563,6 +567,8 @@ async def new_game(message: Message) -> None:
     games[message.chat.id] = {
         "phase": "lobby", "host": message.from_user.id, "players": {}, "round": 0,
         "votes": {}, "night_actions": {}, "lobby_message_id": None,
+        "registration_deadline": time.time() + int(settings()["registration_seconds"]),
+        "phase_deadline": None,
     }
     sent = await message.answer(lobby_text(message.chat.id), reply_markup=lobby_markup(message.chat.id))
     games[message.chat.id]["lobby_message_id"] = sent.message_id
@@ -572,7 +578,9 @@ async def new_game(message: Message) -> None:
 
 
 async def registration_timeout(chat_id: int, message_id: int) -> None:
-    await asyncio.sleep(int(settings()["registration_seconds"]))
+    initial = games.get(chat_id)
+    deadline = float(initial.get("registration_deadline") or time.time()) if initial else time.time()
+    await asyncio.sleep(max(1, deadline - time.time()))
     game = games.get(chat_id)
     if game and game["phase"] == "lobby" and game.get("lobby_message_id") == message_id:
         await safe_send(chat_id, "⌛ Регистрация закрыта. Для новой партии напишите /game.")
@@ -633,6 +641,7 @@ async def leave_callback(callback: CallbackQuery) -> None:
     if game and game["phase"] == "lobby" and uid in game["players"]:
         game["players"].pop(uid, None)
         player_to_chat.pop(uid, None)
+        await save_data()
         await callback.answer("Ты вышел.")
         await refresh_lobby(chat_id)
     else:
@@ -666,6 +675,7 @@ async def action_callback(callback: CallbackQuery) -> None:
             return
         player["vote_target"] = target
         game["votes"][uid] = target
+        await save_data()
         await callback.answer(f"Голос принят: {display_name(target)}")
         return
     if game["phase"] != "night":
@@ -676,6 +686,7 @@ async def action_callback(callback: CallbackQuery) -> None:
         await callback.answer("Твоя роль не может выполнить это действие.", show_alert=True)
         return
     game["night_actions"][uid] = target
+    await save_data()
     await callback.answer("Принято.")
 
 
@@ -946,6 +957,33 @@ async def remember_user(message: Message) -> None:
     await save_data()
 
 
+async def resume_saved_games() -> None:
+    """Restore the phase timers for persisted games after a runner restart."""
+    now = time.time()
+    for chat_id, game in list(games.items()):
+        phase = game.get("phase")
+        if phase == "lobby":
+            message_id = game.get("lobby_message_id")
+            if message_id:
+                asyncio.create_task(registration_timeout(chat_id, int(message_id)))
+        elif phase == "starting":
+            asyncio.create_task(start_night(chat_id))
+        elif phase in ("night", "day"):
+            deadline = float(game.get("phase_deadline") or now)
+            asyncio.create_task(resume_phase_timer(chat_id, phase, max(1, deadline - now)))
+
+
+async def resume_phase_timer(chat_id: int, phase: str, delay: float) -> None:
+    await asyncio.sleep(delay)
+    game = games.get(chat_id)
+    if not game or game.get("phase") != phase:
+        return
+    if phase == "night":
+        await resolve_night(chat_id)
+    elif phase == "day":
+        await resolve_day(chat_id)
+
+
 async def timed_shutdown() -> None:
     await asyncio.sleep(CONTAINER_SECONDS)
     log.warning("Container runtime limit reached; stopping gracefully.")
@@ -966,7 +1004,8 @@ async def run() -> None:
     try:
         me = await bot.get_me()
         bot_username = me.username or bot_username
-        log.info("%s started as @%s; owner=%s", APP_NAME, me.username, ADMIN_ID)
+        log.info("%s started as @%s; owner=%s; restored_games=%s", APP_NAME, me.username, ADMIN_ID, len(games))
+        await resume_saved_games()
         shutdown_task = asyncio.create_task(timed_shutdown())
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), close_bot_session=False)
     except Exception:
