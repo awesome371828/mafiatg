@@ -974,7 +974,30 @@ async def resume_saved_games() -> None:
 
 
 async def resume_phase_timer(chat_id: int, phase: str, delay: float) -> None:
-    await asyncio.sleep(delay)
+    # Telegram messages survive a runner restart; re-send missing night prompts so
+    # players are never locked out if the process stopped between phase save and DM.
+    game = games.get(chat_id)
+    if not game or game.get("phase") != phase:
+        return
+    if phase == "night":
+        for uid in alive_players(game):
+            if uid in game.get("night_actions", {}):
+                continue
+            role = game["players"][uid]["role"]
+            action = role_action(role, game)
+            if not action:
+                continue
+            choices = [(target, display_name(target)) for target in alive_players(game) if target != uid]
+            try:
+                await bot.send_message(
+                    uid,
+                    f"🌙 Ночь {game['round']} продолжается · <b>{escape(role)}</b>\n"
+                    f"{escape(ROLE_DESCRIPTIONS.get(role, 'Выберите действие.'))}",
+                    reply_markup=player_keyboard(chat_id, action, choices),
+                )  # type: ignore[union-attr]
+            except (TelegramForbiddenError, TelegramBadRequest):
+                log.info("Could not restore night prompt for player %s", uid)
+    await asyncio.sleep(max(1, delay))
     game = games.get(chat_id)
     if not game or game.get("phase") != phase:
         return
