@@ -558,7 +558,8 @@ async def profile(message: Message) -> None:
         f"👤 <b>Профиль {message.from_user.full_name}</b>\n"
         f"🎮 Игр: {record.get('games', 0)}\n🏆 Побед: {record.get('wins', 0)}\n"
         f"💔 Поражений: {record.get('losses', 0)}\n"
-        f"📈 Винрейт: {round(record.get('wins', 0) * 100 / max(1, record.get('games', 0)))}%"
+        f"📈 Винрейт: {round(record.get('wins', 0) * 100 / max(1, record.get('games', 0)))}%",
+        reply_markup=main_menu_keyboard()
     )
 
 
@@ -760,11 +761,12 @@ async def timed_shutdown() -> None:
 
 
 async def run() -> None:
-    global bot
+    global bot, bot_username
     if not TOKEN:
         raise RuntimeError("TELEGRAM_TOKEN is missing. Add it in repository Settings > Secrets and variables > Actions.")
     bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     me = await bot.get_me()
+    bot_username = me.username or bot_username
     log.info("%s starting as @%s; owner=%s", APP_NAME, me.username, ADMIN_ID)
     shutdown_task = asyncio.create_task(timed_shutdown(), name="container-shutdown-timer")
     try:
