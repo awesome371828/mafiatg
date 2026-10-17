@@ -881,7 +881,11 @@ async def text_shortcuts(message: Message) -> None:
         "открыть регистрацию мафия", "открыть регистрацию на мафию",
         "мафия", "играем в мафию", "погнали мафия", "го в мафку",
     }
-    if message.chat.type != ChatType.PRIVATE and normalized in triggers:
+    mafia_intent = bool(re.search(
+        r"\\b(старт|начать|начни|запустить|запусти|создать|открыть|начинаем|погнали|го)\\b.*\\b(мафи\\w*|мафк\\w*)\\b",
+        normalized,
+    ) or re.search(r"\\b(мафи\\w*|мафк\\w*)\\b.*\\b(старт|начать|запустить|го)\\b", normalized))
+    if message.chat.type != ChatType.PRIVATE and (normalized in triggers or mafia_intent):
         await new_game(message)
 
 
@@ -909,14 +913,19 @@ async def run() -> None:
     if not TOKEN:
         raise RuntimeError("TELEGRAM_TOKEN is missing. Add it in repository Settings > Secrets and variables > Actions.")
     bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    me = await bot.get_me()
-    bot_username = me.username or bot_username
-    log.info("%s started as @%s; owner=%s", APP_NAME, me.username, ADMIN_ID)
-    shutdown_task = asyncio.create_task(timed_shutdown())
+    shutdown_task: asyncio.Task | None = None
     try:
+        me = await bot.get_me()
+        bot_username = me.username or bot_username
+        log.info("%s started as @%s; owner=%s", APP_NAME, me.username, ADMIN_ID)
+        shutdown_task = asyncio.create_task(timed_shutdown())
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types(), close_bot_session=False)
+    except Exception:
+        log.exception("Bot failed during startup or polling. Check TELEGRAM_TOKEN and Telegram API connectivity.")
+        raise
     finally:
-        shutdown_task.cancel()
+        if shutdown_task:
+            shutdown_task.cancel()
         await save_data()
         await bot.session.close()
 
