@@ -4,5 +4,31 @@
   "totals": {
     "games": 0,
     "wins": {}
+  },
+  "settings": {
+    "min_players": 2,
+    "max_players": 20,
+    "night_seconds": 25,
+    "day_seconds": 30,
+    "registration_seconds": 300,
+    "show_roles": true,
+    "test_mode": true,
+    "roles_enabled": {
+      "mafia": true,
+      "don": true,
+      "commissioner": true,
+      "sergeant": true,
+      "doctor": true,
+      "maniac": true,
+      "mistress": true,
+      "lawyer": true,
+      "suicide": true,
+      "bum": true,
+      "lucky": true,
+      "kamikaze": true,
+      "journalist": true,
+      "bodyguard": true,
+      "mayor": true
+    }
   }
 }
