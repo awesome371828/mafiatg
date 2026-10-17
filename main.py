@@ -67,7 +67,8 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "roles_enabled": {key: True for key in ROLE_KEYS.values()},
 }
 DEFAULT_DATA: dict[str, Any] = {
-    "users": {}, "bans": {}, "totals": {"games": 0, "wins": {}}, "settings": DEFAULT_SETTINGS,
+    "users": {}, "bans": {}, "totals": {"games": 0, "wins": {}},
+    "settings": DEFAULT_SETTINGS, "active_games": {},
 }
 
 
@@ -91,9 +92,24 @@ def load_data() -> dict[str, Any]:
 
 data = load_data()
 
+# Restore the persisted state of each active game before polling starts.
+for _chat_text, _saved_game in data.get("active_games", {}).items():
+    try:
+        _chat_id = int(_chat_text)
+        _saved_game["players"] = {int(uid): player for uid, player in _saved_game.get("players", {}).items()}
+        _saved_game["votes"] = {int(uid): int(target) for uid, target in _saved_game.get("votes", {}).items()}
+        _saved_game["night_actions"] = {int(uid): int(target) for uid, target in _saved_game.get("night_actions", {}).items()}
+        games[_chat_id] = _saved_game
+        for _uid, _player in _saved_game["players"].items():
+            if _saved_game.get("phase") == "lobby" or _player.get("alive", False):
+                player_to_chat[_uid] = _chat_id
+    except (TypeError, ValueError, KeyError) as _exc:
+        log.warning("Skipping invalid saved game %s: %s", _chat_text, _exc)
+
 
 async def save_data() -> None:
     async with data_lock:
+        data["active_games"] = {str(chat_id): game for chat_id, game in games.items()}
         DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
         tmp = DATA_PATH.with_suffix(".json.tmp")
         tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
