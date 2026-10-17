@@ -882,9 +882,9 @@ async def text_shortcuts(message: Message) -> None:
         "мафия", "играем в мафию", "погнали мафия", "го в мафку",
     }
     mafia_intent = bool(re.search(
-        r"\\b(старт|начать|начни|запустить|запусти|создать|открыть|начинаем|погнали|го)\\b.*\\b(мафи\\w*|мафк\\w*)\\b",
+        r"\b(старт|начать|начни|запустить|запусти|создать|открыть|начинаем|погнали|го)\b.*\b(мафи\w*|мафк\w*)\b",
         normalized,
-    ) or re.search(r"\\b(мафи\\w*|мафк\\w*)\\b.*\\b(старт|начать|запустить|го)\\b", normalized))
+    ) or re.search(r"\b(мафи\w*|мафк\w*)\b.*\b(старт|начать|запустить|го)\b", normalized))
     if message.chat.type != ChatType.PRIVATE and (normalized in triggers or mafia_intent):
         await new_game(message)
 
