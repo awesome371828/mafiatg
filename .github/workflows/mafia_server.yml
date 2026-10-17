@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: mafia-keep-bot
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   run-bot:
