@@ -162,6 +162,7 @@ def outcome(game: dict[str, Any]) -> str | None:
 
 async def safe_send(chat_id: int, text: str, **kwargs: Any) -> None:
     try:
+        kwargs.setdefault("reply_markup", main_menu_keyboard())
         await bot.send_message(chat_id, text, **kwargs)  # type: ignore[union-attr]
     except (TelegramForbiddenError, TelegramBadRequest) as exc:
         log.info("Could not send message to %s: %s", chat_id, exc)
@@ -361,7 +362,7 @@ async def start(message: Message) -> None:
 async def rules_callback(callback: CallbackQuery) -> None:
     await callback.answer()
     if callback.message:
-        await callback.message.answer("📜 <b>Правила Mafia Keep</b>\nМафия побеждает, когда мафии не меньше мирных. Мирные побеждают, когда вся мафия выбывает. Не раскрывайте свою роль без необходимости. Ночные действия доступны в личке.")
+        await callback.message.answer("📜 <b>Правила Mafia Keep</b>\nМафия побеждает, когда мафии не меньше мирных. Мирные побеждают, когда вся мафия выбывает. Ночные действия доступны в личке.", reply_markup=main_menu_keyboard())
 
 
 @router.message(Command("new_game"))
