@@ -127,6 +127,7 @@ def touch_user(user: User) -> dict[str, Any]:
         "games": 0, "wins": 0, "losses": 0, "banned": False, "last_seen": None,
     })
     record.update(username=user.username, first_name=user.first_name,
+                  full_name=user.full_name,
                   last_seen=datetime.now(timezone.utc).isoformat())
     return record
 
@@ -136,9 +137,9 @@ def is_banned(uid: int) -> bool:
 
 
 def display_name(uid: int) -> str:
+    """Display the person's Telegram name, never their @username."""
     rec = data["users"].get(str(uid), {})
-    username = rec.get("username")
-    name = "@" + username if username else rec.get("first_name") or f"Игрок {uid}"
+    name = rec.get("first_name") or rec.get("full_name") or f"Игрок {uid}"
     return escape(str(name))
 
 
@@ -472,6 +473,14 @@ async def begin_game(chat_id: int, starter_id: int) -> str:
         return f"Нужно минимум {settings()['min_players']} игрока."
     if starter_id not in game["players"] and not is_admin(starter_id) and starter_id != game["host"]:
         return "Начать может участник лобби или создатель."
+    # A player must explicitly open the bot and press /start before they can register.
+    not_started = [uid for uid in game["players"]
+                   if not data["users"].get(str(uid), {}).get("private_started", False)]
+    if not_started:
+        names = ", ".join(display_name(uid) for uid in not_started)
+        return (f"Не все готовы к раздаче ролей: {names}.\n"
+                "Каждый из этих игроков должен открыть бота и нажать /start, "
+                "после чего заново записаться в игру.")
     # Preflight every DM before assigning any roles. Avoid half-started games.
     failed: list[int] = []
     for uid in game["players"]:
@@ -543,7 +552,9 @@ def roles_keyboard() -> InlineKeyboardMarkup:
 async def start(message: Message) -> None:
     if not message.from_user:
         return
-    touch_user(message.from_user)
+    record = touch_user(message.from_user)
+    if message.chat.type == ChatType.PRIVATE:
+        record["private_started"] = True
     await save_data()
     if is_banned(message.from_user.id):
         await message.answer("⛔ Доступ закрыт.")
@@ -583,13 +594,34 @@ async def new_game(message: Message) -> None:
 async def registration_timeout(chat_id: int, message_id: int) -> None:
     initial = games.get(chat_id)
     deadline = float(initial.get("registration_deadline") or time.time()) if initial else time.time()
-    await asyncio.sleep(max(1, deadline - time.time()))
+    # Post a separate countdown message every minute while the lobby is open.
+    while True:
+        remaining = int(deadline - time.time())
+        if remaining <= 0:
+            break
+        await asyncio.sleep(min(60, remaining))
+        game = games.get(chat_id)
+        if not game or game.get("phase") != "lobby" or game.get("lobby_message_id") != message_id:
+            return
+        remaining = max(0, int(deadline - time.time()))
+        if remaining <= 0:
+            break
+        minutes, seconds = divmod(remaining, 60)
+        if seconds == 0:
+            countdown = f"{minutes} мин."
+        elif minutes:
+            countdown = f"{minutes} мин. {seconds} сек."
+        else:
+            countdown = f"{seconds} сек."
+        await safe_send(chat_id, f"⏳ До конца регистрации в Mafia Keep осталось <b>{countdown}</b>.\n"
+                                f"Участников: {len(game['players'])}/{int(settings()['max_players'])}. Нажмите «Записаться», чтобы войти.")
     game = games.get(chat_id)
     if game and game["phase"] == "lobby" and game.get("lobby_message_id") == message_id:
         await safe_send(chat_id, "⌛ Регистрация закрыта. Для новой партии напишите /game.")
         for uid in game["players"]:
             player_to_chat.pop(uid, None)
         games.pop(chat_id, None)
+        await save_data()
 
 
 @router.message(Command("start_game"))
@@ -617,6 +649,15 @@ async def join_callback(callback: CallbackQuery) -> None:
     game = games.get(chat_id)
     if not game or game["phase"] != "lobby":
         await callback.answer("Регистрация закрыта.", show_alert=True)
+        return
+    if not data["users"].get(str(uid), {}).get("private_started", False):
+        await callback.answer("Сначала нажми /start в личке с ботом!", show_alert=True)
+        try:
+            await bot.send_message(chat_id,
+                f"📩 {display_name(uid)}, чтобы зарегистрироваться на мафию, откройте бота "
+                f"@{bot_username} и нажмите /start, затем нажмите «Записаться» ещё раз.")
+        except (TelegramForbiddenError, TelegramBadRequest):
+            pass
         return
     if uid in game["players"]:
         await callback.answer("Ты уже в игре.")
@@ -683,6 +724,7 @@ async def action_callback(callback: CallbackQuery) -> None:
         game["votes"][uid] = target
         await save_data()
         await callback.answer(f"Голос принят: {display_name(target)}")
+        await safe_send(chat_id, f"🗳 <b>{display_name(uid)}</b> проголосовал(а) за <b>{display_name(target)}</b>.")
         return
     if game["phase"] != "night":
         await callback.answer("Это действие доступно только ночью.", show_alert=True)
