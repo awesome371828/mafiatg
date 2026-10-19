@@ -30,7 +30,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-19T08:35:44.953449+00:00",
+      "last_seen": "2026-10-19T15:28:00.947727+00:00",
       "full_name": "росеов расколов"
     },
     "7857791746": {
@@ -41,7 +41,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-19T08:00:00.230653+00:00",
+      "last_seen": "2026-10-19T15:26:53.034788+00:00",
       "full_name": "кобяк"
     },
     "8130044589": {
@@ -85,7 +85,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-18T19:57:05.550303+00:00",
+      "last_seen": "2026-10-19T12:56:56.798753+00:00",
       "full_name": "Леопольд"
     },
     "1025622880": {
@@ -107,7 +107,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-19T07:33:53.547463+00:00",
+      "last_seen": "2026-10-19T10:33:13.365123+00:00",
       "full_name": "prince мади"
     },
     "1419109237": {
@@ -118,7 +118,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-19T05:36:56.535498+00:00",
+      "last_seen": "2026-10-19T13:11:13.033483+00:00",
       "full_name": "XVII хирейнз"
     },
     "7607742986": {
@@ -184,8 +184,85 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-19T06:11:22.341213+00:00",
+      "last_seen": "2026-10-19T11:55:54.986490+00:00",
       "full_name": "What Crime"
+    },
+    "1721327707": {
+      "user_id": 1721327707,
+      "username": "Wolterenko",
+      "first_name": "Егоркин-Ю",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-10-19T10:33:13.499582+00:00",
+      "full_name": "Егоркин-Ю"
+    },
+    "859042181": {
+      "user_id": 859042181,
+      "username": "osadaq",
+      "first_name": "алоени",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-10-19T12:22:26.562360+00:00",
+      "full_name": "алоени"
+    },
+    "5127131043": {
+      "user_id": 5127131043,
+      "username": "karatelAM",
+      "first_name": "A.R.T ♰",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-10-19T12:09:20.313186+00:00",
+      "full_name": "A.R.T ♰"
+    },
+    "8354310651": {
+      "user_id": 8354310651,
+      "username": "pidaxi",
+      "first_name": "кирилл",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-10-19T11:21:31.682797+00:00",
+      "full_name": "кирилл"
+    },
+    "1087968824": {
+      "user_id": 1087968824,
+      "username": "GroupAnonymousBot",
+      "first_name": "Group",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-10-19T14:07:57.003444+00:00",
+      "full_name": "Group"
+    },
+    "1337937406": {
+      "user_id": 1337937406,
+      "username": "playermetak",
+      "first_name": "Pepel//Archangelov",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-10-19T14:22:35.174082+00:00",
+      "full_name": "Pepel//Archangelov"
+    },
+    "8447485477": {
+      "user_id": 8447485477,
+      "username": "opekcx",
+      "first_name": "fyrtonovskyy",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-10-19T14:58:13.342972+00:00",
+      "full_name": "fyrtonovskyy"
     }
   },
   "bans": {
