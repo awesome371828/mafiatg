@@ -8,7 +8,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-19T20:24:45.447835+00:00",
+      "last_seen": "2026-10-20T09:50:04.860629+00:00",
       "full_name": "awesome",
       "private_started": true
     },
@@ -30,7 +30,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-20T08:09:28.720282+00:00",
+      "last_seen": "2026-10-20T14:41:48.606933+00:00",
       "full_name": "росеов расколов"
     },
     "7857791746": {
@@ -41,7 +41,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-20T05:46:34.857073+00:00",
+      "last_seen": "2026-10-20T11:24:31.641518+00:00",
       "full_name": "кобяк"
     },
     "8130044589": {
@@ -74,7 +74,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-18T19:42:42.592789+00:00",
+      "last_seen": "2026-10-20T13:34:15.938516+00:00",
       "full_name": "визи хирейнз"
     },
     "7055546829": {
@@ -107,19 +107,19 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-20T07:26:10.943114+00:00",
+      "last_seen": "2026-10-20T14:37:37.956800+00:00",
       "full_name": "prince мади"
     },
     "1419109237": {
       "user_id": 1419109237,
       "username": "tgvkq",
-      "first_name": "XVII хирейнз",
+      "first_name": "autistic#kid XVII",
       "games": 0,
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-20T07:22:01.661346+00:00",
-      "full_name": "XVII хирейнз"
+      "last_seen": "2026-10-20T14:34:04.076146+00:00",
+      "full_name": "autistic#kid XVII"
     },
     "7607742986": {
       "user_id": 7607742986,
@@ -173,7 +173,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-19T20:24:47.843598+00:00",
+      "last_seen": "2026-10-20T14:44:31.717273+00:00",
       "full_name": "трибунал"
     },
     "7964653829": {
@@ -206,7 +206,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-20T07:08:28.827637+00:00",
+      "last_seen": "2026-10-20T13:21:15.584100+00:00",
       "full_name": "алоени"
     },
     "5127131043": {
@@ -228,7 +228,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-19T20:24:37.539484+00:00",
+      "last_seen": "2026-10-20T12:48:46.849477+00:00",
       "full_name": "кирилл"
     },
     "1087968824": {
@@ -261,7 +261,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-20T06:21:39.272388+00:00",
+      "last_seen": "2026-10-20T13:40:46.956748+00:00",
       "full_name": "fyrtonovskyy"
     },
     "6423301101": {
@@ -329,6 +329,17 @@
       "banned": false,
       "last_seen": "2026-10-20T06:37:38.254371+00:00",
       "full_name": "ssq"
+    },
+    "6303206556": {
+      "user_id": 6303206556,
+      "username": "IsPumpkin",
+      "first_name": "Царек",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-10-20T11:11:31.576788+00:00",
+      "full_name": "Царек"
     }
   },
   "bans": {
