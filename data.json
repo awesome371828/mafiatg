@@ -3,13 +3,13 @@
     "6652898792": {
       "user_id": 6652898792,
       "username": "rypyi",
-      "first_name": "awesome",
-      "games": 0,
-      "wins": 0,
+      "first_name": "awesome @rypyi",
+      "games": 1,
+      "wins": 1,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-26T20:20:16.085936+00:00",
-      "full_name": "awesome",
+      "last_seen": "2026-11-03T00:12:07.344419+00:00",
+      "full_name": "awesome @rypyi",
       "private_started": true
     },
     "7969567972": {
@@ -461,6 +461,76 @@
       "banned": false,
       "last_seen": "2026-10-27T11:51:49.557763+00:00",
       "full_name": "prince angel"
+    },
+    "1396966282": {
+      "user_id": 1396966282,
+      "username": "Coctco",
+      "first_name": "𝔛𝔞𝔳𝔩𝔢𝔤𝔟𝔪𝔞𝔬𝔣𝔣𝔣𝔞𝔰𝔰𝔰𝔰𝔦𝔱𝔦𝔪𝔦𝔴𝔬𝔞𝔪𝔫𝔡𝔲𝔱𝔯𝔬𝔞𝔟𝔠𝔴𝔞𝔭𝔴𝔞𝔢𝔦𝔦𝔭𝔭𝔬𝔥𝔣𝔣𝔣𝔛",
+      "games": 1,
+      "wins": 0,
+      "losses": 1,
+      "banned": false,
+      "last_seen": "2026-11-03T00:06:29.583766+00:00",
+      "full_name": "𝔛𝔞𝔳𝔩𝔢𝔤𝔟𝔪𝔞𝔬𝔣𝔣𝔣𝔞𝔰𝔰𝔰𝔰𝔦𝔱𝔦𝔪𝔦𝔴𝔬𝔞𝔪𝔫𝔡𝔲𝔱𝔯𝔬𝔞𝔟𝔠𝔴𝔞𝔭𝔴𝔞𝔢𝔦𝔦𝔭𝔭𝔬𝔥𝔣𝔣𝔣𝔛",
+      "private_started": true
+    },
+    "8776419599": {
+      "user_id": 8776419599,
+      "username": "saddeding",
+      "first_name": "wijie/wijz",
+      "games": 1,
+      "wins": 0,
+      "losses": 1,
+      "banned": false,
+      "last_seen": "2026-11-03T00:08:26.267116+00:00",
+      "full_name": "wijie/wijz ⌈03∶08⌋",
+      "private_started": true
+    },
+    "5211450631": {
+      "user_id": 5211450631,
+      "username": "darkshine0101",
+      "first_name": "悪| 𝒟𝒶𝓇𝓀𝓈𝒽𝒾𝓃𝑒 |良い",
+      "games": 1,
+      "wins": 0,
+      "losses": 1,
+      "banned": false,
+      "last_seen": "2026-11-03T00:06:32.355064+00:00",
+      "full_name": "悪| 𝒟𝒶𝓇𝓀𝓈𝒽𝒾𝓃𝑒 |良い",
+      "private_started": true
+    },
+    "7083744054": {
+      "user_id": 7083744054,
+      "username": "usertorkich",
+      "first_name": "txt",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-03T00:07:48.254283+00:00",
+      "full_name": "txt"
+    },
+    "8341440366": {
+      "user_id": 8341440366,
+      "username": "sluchaini_prohogi",
+      "first_name": "Madman",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-03T00:08:38.528334+00:00",
+      "full_name": "Madman"
+    },
+    "8304727716": {
+      "user_id": 8304727716,
+      "username": "badwebdev",
+      "first_name": "Web dev",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-03T00:12:12.298131+00:00",
+      "full_name": "Web dev",
+      "private_started": true
     }
   },
   "bans": {
@@ -471,8 +541,10 @@
     }
   },
   "totals": {
-    "games": 0,
-    "wins": {}
+    "games": 1,
+    "wins": {
+      "mafia": 1
+    }
   },
   "settings": {
     "min_players": 4,
