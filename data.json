@@ -8,7 +8,7 @@
       "wins": 1,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-03T17:57:07.951629+00:00",
+      "last_seen": "2026-11-04T12:48:53.532637+00:00",
       "full_name": "awesome @rypyi",
       "private_started": true
     },
@@ -553,6 +553,39 @@
       "banned": false,
       "last_seen": "2026-11-03T06:39:46.830482+00:00",
       "full_name": "francikk"
+    },
+    "8545498478": {
+      "user_id": 8545498478,
+      "username": "femxl",
+      "first_name": "xxw",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-04T16:06:35.713736+00:00",
+      "full_name": "xxw"
+    },
+    "7087931899": {
+      "user_id": 7087931899,
+      "username": "Legendachuvak",
+      "first_name": "Чувак",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-04T16:06:58.587363+00:00",
+      "full_name": "Чувак"
+    },
+    "1284296923": {
+      "user_id": 1284296923,
+      "username": "fiera_m",
+      "first_name": "wiwin💋",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-04T16:17:42.667833+00:00",
+      "full_name": "wiwin💋"
     }
   },
   "bans": {
