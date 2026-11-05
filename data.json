@@ -482,8 +482,8 @@
       "wins": 0,
       "losses": 1,
       "banned": false,
-      "last_seen": "2026-11-03T00:08:26.267116+00:00",
-      "full_name": "wijie/wijz ⌈03∶08⌋",
+      "last_seen": "2026-11-04T21:05:24.860083+00:00",
+      "full_name": "wijie/wijz ⌈21∶58⌋",
       "private_started": true
     },
     "5211450631": {
@@ -500,14 +500,14 @@
     },
     "7083744054": {
       "user_id": 7083744054,
-      "username": "usertorkich",
-      "first_name": "txt",
+      "username": "killedanofficer",
+      "first_name": "rrt",
       "games": 0,
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-03T00:07:48.254283+00:00",
-      "full_name": "txt"
+      "last_seen": "2026-11-04T21:05:24.862637+00:00",
+      "full_name": "rrt"
     },
     "8341440366": {
       "user_id": 8341440366,
@@ -586,6 +586,83 @@
       "banned": false,
       "last_seen": "2026-11-04T16:17:42.667833+00:00",
       "full_name": "wiwin💋"
+    },
+    "5934801735": {
+      "user_id": 5934801735,
+      "username": null,
+      "first_name": "тёма",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-04T21:05:24.858297+00:00",
+      "full_name": "тёма"
+    },
+    "8117226460": {
+      "user_id": 8117226460,
+      "username": "Timat7706",
+      "first_name": "Rainx",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-04T21:05:24.859210+00:00",
+      "full_name": "Rainx 【21:58】"
+    },
+    "5328587695": {
+      "user_id": 5328587695,
+      "username": "qevnor",
+      "first_name": "Lipids",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-04T21:05:24.860911+00:00",
+      "full_name": "Lipids"
+    },
+    "5268768863": {
+      "user_id": 5268768863,
+      "username": "iurjl",
+      "first_name": "abnormal",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-04T21:05:24.861783+00:00",
+      "full_name": "abnormal"
+    },
+    "7681921375": {
+      "user_id": 7681921375,
+      "username": "LagyshkaX",
+      "first_name": "GragSky",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-04T21:54:23.182793+00:00",
+      "full_name": "GragSky"
+    },
+    "5264437370": {
+      "user_id": 5264437370,
+      "username": "Kaldunu77",
+      "first_name": "вась",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-04T22:19:27.473353+00:00",
+      "full_name": "вась"
+    },
+    "5682781209": {
+      "user_id": 5682781209,
+      "username": "Night_Drunchik",
+      "first_name": "-",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-04T22:26:39.533902+00:00",
+      "full_name": "-"
     }
   },
   "bans": {
