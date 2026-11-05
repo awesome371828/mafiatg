@@ -8,7 +8,7 @@
       "wins": 1,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-04T12:48:53.532637+00:00",
+      "last_seen": "2026-11-05T18:44:53.048741+00:00",
       "full_name": "awesome @rypyi",
       "private_started": true
     },
@@ -283,7 +283,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-24T18:12:54.196917+00:00",
+      "last_seen": "2026-11-05T18:01:37.555000+00:00",
       "full_name": "респач"
     },
     "1629617313": {
@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-10-24T21:10:16.075147+00:00",
+      "last_seen": "2026-11-05T20:02:10.392073+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -506,7 +506,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-04T21:05:24.862637+00:00",
+      "last_seen": "2026-11-05T20:10:48.862611+00:00",
       "full_name": "rrt"
     },
     "8341440366": {
@@ -562,7 +562,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-04T16:06:35.713736+00:00",
+      "last_seen": "2026-11-05T20:07:45.357614+00:00",
       "full_name": "xxw"
     },
     "7087931899": {
@@ -573,7 +573,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-04T16:06:58.587363+00:00",
+      "last_seen": "2026-11-05T18:02:45.230273+00:00",
       "full_name": "Чувак"
     },
     "1284296923": {
@@ -628,7 +628,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-04T21:05:24.861783+00:00",
+      "last_seen": "2026-11-05T19:37:50.953347+00:00",
       "full_name": "abnormal"
     },
     "7681921375": {
@@ -685,6 +685,94 @@
       "banned": false,
       "last_seen": "2026-11-05T10:08:37.249300+00:00",
       "full_name": "gaddemfuck"
+    },
+    "5805755182": {
+      "user_id": 5805755182,
+      "username": "Simon1146",
+      "first_name": "Игорь",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-05T17:52:45.368457+00:00",
+      "full_name": "Игорь"
+    },
+    "5496861993": {
+      "user_id": 5496861993,
+      "username": "MatveyHignt",
+      "first_name": "Matvey",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-05T17:52:45.581286+00:00",
+      "full_name": "Matvey"
+    },
+    "2078564062": {
+      "user_id": 2078564062,
+      "username": "Smefka",
+      "first_name": ".",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-05T22:26:48.764263+00:00",
+      "full_name": "."
+    },
+    "5249341905": {
+      "user_id": 5249341905,
+      "username": "iska2010",
+      "first_name": ".",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-05T17:52:45.957759+00:00",
+      "full_name": "."
+    },
+    "1355600457": {
+      "user_id": 1355600457,
+      "username": "dramovv",
+      "first_name": "алексей~",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-05T17:52:46.140457+00:00",
+      "full_name": "алексей~"
+    },
+    "7189043822": {
+      "user_id": 7189043822,
+      "username": "Ropenpvp1",
+      "first_name": "Hantik",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-05T18:08:26.604557+00:00",
+      "full_name": "Hantik"
+    },
+    "6703084541": {
+      "user_id": 6703084541,
+      "username": "vxeuhh",
+      "first_name": "#ᴧᴀᴛᴇᴋᴄ нᴇᴩᴀʙнодуɯиᴇ✨",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-05T20:10:54.565633+00:00",
+      "full_name": "#ᴧᴀᴛᴇᴋᴄ нᴇᴩᴀʙнодуɯиᴇ✨"
+    },
+    "7086128174": {
+      "user_id": 7086128174,
+      "username": "ucier",
+      "first_name": "Артём",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-05T20:54:49.108998+00:00",
+      "full_name": "Артём"
     }
   },
   "bans": {
