@@ -8,7 +8,7 @@
       "wins": 1,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-05T18:44:53.048741+00:00",
+      "last_seen": "2026-11-06T02:10:41.794235+00:00",
       "full_name": "awesome @rypyi",
       "private_started": true
     },
@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-05T20:02:10.392073+00:00",
+      "last_seen": "2026-11-06T02:31:32.872404+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -716,7 +716,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-05T22:26:48.764263+00:00",
+      "last_seen": "2026-11-06T02:15:47.792494+00:00",
       "full_name": "."
     },
     "5249341905": {
@@ -773,6 +773,17 @@
       "banned": false,
       "last_seen": "2026-11-05T20:54:49.108998+00:00",
       "full_name": "Артём"
+    },
+    "5275255185": {
+      "user_id": 5275255185,
+      "username": "PaxanCool",
+      "first_name": "PaxanCool",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-06T04:54:57.704110+00:00",
+      "full_name": "PaxanCool"
     }
   },
   "bans": {
