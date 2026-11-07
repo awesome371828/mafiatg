@@ -8,7 +8,7 @@
       "wins": 1,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-06T16:27:23.738860+00:00",
+      "last_seen": "2026-11-06T21:38:28.195430+00:00",
       "full_name": "awesome @rypyi",
       "private_started": true
     },
@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-06T12:44:51.544021+00:00",
+      "last_seen": "2026-11-07T00:56:00.829902+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -623,13 +623,13 @@
     "5268768863": {
       "user_id": 5268768863,
       "username": "iurjl",
-      "first_name": "abnormal",
+      "first_name": "^",
       "games": 0,
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-05T19:37:50.953347+00:00",
-      "full_name": "abnormal"
+      "last_seen": "2026-11-06T22:08:44.796421+00:00",
+      "full_name": "^"
     },
     "7681921375": {
       "user_id": 7681921375,
@@ -793,8 +793,19 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-06T16:14:57.129620+00:00",
+      "last_seen": "2026-11-06T20:42:40.562996+00:00",
       "full_name": "koka"
+    },
+    "6025651919": {
+      "user_id": 6025651919,
+      "username": null,
+      "first_name": "w_w",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-06T21:37:15.915136+00:00",
+      "full_name": "w_w"
     }
   },
   "bans": {
