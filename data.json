@@ -8,7 +8,7 @@
       "wins": 1,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-08T08:53:23.432286+00:00",
+      "last_seen": "2026-11-08T23:14:25.588666+00:00",
       "full_name": "awesome @rypyi",
       "private_started": true
     },
@@ -628,7 +628,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-08T08:53:35.445984+00:00",
+      "last_seen": "2026-11-08T21:31:37.376915+00:00",
       "full_name": "^"
     },
     "7681921375": {
@@ -738,7 +738,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-05T17:52:46.140457+00:00",
+      "last_seen": "2026-11-08T21:22:35.717771+00:00",
       "full_name": "алексей~"
     },
     "7189043822": {
@@ -782,8 +782,9 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-06T04:54:57.704110+00:00",
-      "full_name": "PaxanCool"
+      "last_seen": "2026-11-08T21:23:52.370253+00:00",
+      "full_name": "PaxanCool",
+      "private_started": true
     },
     "8358113137": {
       "user_id": 8358113137,
@@ -793,7 +794,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-08T13:15:04.285985+00:00",
+      "last_seen": "2026-11-08T20:02:00.593752+00:00",
       "full_name": "koka"
     },
     "6025651919": {
@@ -850,6 +851,39 @@
       "banned": false,
       "last_seen": "2026-11-08T13:49:53.197313+00:00",
       "full_name": "#blodmonovv"
+    },
+    "1752139542": {
+      "user_id": 1752139542,
+      "username": "babbyxxx",
+      "first_name": "Анастасия Алексеевна 🖤",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-08T20:56:56.013447+00:00",
+      "full_name": "Анастасия Алексеевна 🖤"
+    },
+    "6008088905": {
+      "user_id": 6008088905,
+      "username": "threesofhell",
+      "first_name": "シティー | #101Э",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-08T21:43:05.269958+00:00",
+      "full_name": "シティー | #101Э 「𝟶𝟶:𝟺𝟹」"
+    },
+    "7852152407": {
+      "user_id": 7852152407,
+      "username": "KurtWayneGacy",
+      "first_name": "­",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-08T22:37:26.465499+00:00",
+      "full_name": "­"
     }
   },
   "bans": {
