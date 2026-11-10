@@ -470,8 +470,8 @@
       "wins": 0,
       "losses": 1,
       "banned": false,
-      "last_seen": "2026-11-09T16:06:42.294389+00:00",
-      "full_name": "𝔖𝔄𝔗𝔘ℜ𝔑Ø𝔛 ⟮¹⁹·⁰⁶⟯",
+      "last_seen": "2026-11-10T02:59:38.752921+00:00",
+      "full_name": "𝔖𝔄𝔗𝔘ℜ𝔑Ø𝔛 ⟮⁰⁵·⁵⁹⟯",
       "private_started": true
     },
     "8776419599": {
@@ -906,6 +906,61 @@
       "banned": false,
       "last_seen": "2026-11-09T18:38:08.400516+00:00",
       "full_name": "Venom X"
+    },
+    "7613817426": {
+      "user_id": 7613817426,
+      "username": "Joaildt",
+      "first_name": "Joal",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-09T23:42:58.880294+00:00",
+      "full_name": "Joal"
+    },
+    "896776096": {
+      "user_id": 896776096,
+      "username": "PonyVAN",
+      "first_name": "Ванек",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-09T23:42:58.881766+00:00",
+      "full_name": "Ванек"
+    },
+    "5199033495": {
+      "user_id": 5199033495,
+      "username": "Bespilotkinlip",
+      "first_name": "Artem",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-09T23:42:58.883018+00:00",
+      "full_name": "Artem"
+    },
+    "6508618867": {
+      "user_id": 6508618867,
+      "username": "Davidnormik00",
+      "first_name": "︎ ︎︎ ︎︎ ︎︎ ︎︎ ︎︎ ︎",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-09T23:42:58.884282+00:00",
+      "full_name": "︎ ︎︎ ︎︎ ︎︎ ︎︎ ︎︎ ︎"
+    },
+    "7860902345": {
+      "user_id": 7860902345,
+      "username": "SAYNN_gg",
+      "first_name": "—͟͞͞ ↁӍ𝙞ţ𝑟𝙞𝑦 👾",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-09T23:42:58.885490+00:00",
+      "full_name": "—͟͞͞ ↁӍ𝙞ţ𝑟𝙞𝑦 👾"
     }
   },
   "bans": {
