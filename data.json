@@ -8,7 +8,7 @@
       "wins": 1,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-09T13:46:19.201200+00:00",
+      "last_seen": "2026-11-10T17:31:48.247259+00:00",
       "full_name": "awesome @rypyi",
       "private_started": true
     },
@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-08T13:49:17.969969+00:00",
+      "last_seen": "2026-11-10T22:08:57.920044+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -494,7 +494,7 @@
       "wins": 0,
       "losses": 1,
       "banned": false,
-      "last_seen": "2026-11-03T00:06:32.355064+00:00",
+      "last_seen": "2026-11-10T17:31:48.246397+00:00",
       "full_name": "悪| 𝒟𝒶𝓇𝓀𝓈𝒽𝒾𝓃𝑒 |良い",
       "private_started": true
     },
@@ -573,7 +573,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-07T19:16:41.934410+00:00",
+      "last_seen": "2026-11-10T17:31:48.250963+00:00",
       "full_name": "Чувак"
     },
     "1284296923": {
@@ -727,7 +727,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-10T09:18:17.970124+00:00",
+      "last_seen": "2026-11-10T17:31:48.244651+00:00",
       "full_name": "."
     },
     "1355600457": {
@@ -961,6 +961,17 @@
       "banned": false,
       "last_seen": "2026-11-09T23:42:58.885490+00:00",
       "full_name": "—͟͞͞ ↁӍ𝙞ţ𝑟𝙞𝑦 👾"
+    },
+    "6794793584": {
+      "user_id": 6794793584,
+      "username": "Older70",
+      "first_name": "Пантера",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-10T17:31:48.243166+00:00",
+      "full_name": "Пантера @SkinozBot"
     }
   },
   "bans": {
