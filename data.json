@@ -623,13 +623,13 @@
     "5268768863": {
       "user_id": 5268768863,
       "username": "iurjl",
-      "first_name": "^",
+      "first_name": "user",
       "games": 0,
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-08T21:31:37.376915+00:00",
-      "full_name": "^"
+      "last_seen": "2026-11-10T09:10:39.720752+00:00",
+      "full_name": "user"
     },
     "7681921375": {
       "user_id": 7681921375,
@@ -727,7 +727,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-09T06:05:21.544772+00:00",
+      "last_seen": "2026-11-10T09:18:17.970124+00:00",
       "full_name": "."
     },
     "1355600457": {
