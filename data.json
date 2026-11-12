@@ -8,7 +8,7 @@
       "wins": 1,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-12T10:55:24.181535+00:00",
+      "last_seen": "2026-11-12T22:02:06.719123+00:00",
       "full_name": "awesome @rypyi",
       "private_started": true
     },
@@ -184,7 +184,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-12T06:05:31.979163+00:00",
+      "last_seen": "2026-11-12T17:56:59.767562+00:00",
       "full_name": "entral"
     },
     "1721327707": {
@@ -573,7 +573,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-11T16:50:58.652667+00:00",
+      "last_seen": "2026-11-12T17:56:59.748444+00:00",
       "full_name": "Чувак"
     },
     "1284296923": {
@@ -645,13 +645,13 @@
     "5264437370": {
       "user_id": 5264437370,
       "username": "Kaldunu77",
-      "first_name": "вась",
+      "first_name": ".",
       "games": 0,
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-04T22:19:27.473353+00:00",
-      "full_name": "вась"
+      "last_seen": "2026-11-12T17:56:59.960267+00:00",
+      "full_name": "."
     },
     "5682781209": {
       "user_id": 5682781209,
@@ -771,7 +771,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-11T00:26:45.222487+00:00",
+      "last_seen": "2026-11-12T17:56:59.962781+00:00",
       "full_name": "Артём"
     },
     "5275255185": {
@@ -1030,13 +1030,13 @@
     },
     "8615200585": {
       "user_id": 8615200585,
-      "username": "fearvwv",
+      "username": "Heliveddead",
       "first_name": "v.",
       "games": 0,
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-11T23:52:24.646288+00:00",
+      "last_seen": "2026-11-12T17:56:59.959061+00:00",
       "full_name": "v."
     },
     "5746744204": {
@@ -1060,6 +1060,39 @@
       "banned": false,
       "last_seen": "2026-11-12T08:28:51.934883+00:00",
       "full_name": "ᅠ ￴￴￴￴"
+    },
+    "9130726058": {
+      "user_id": 9130726058,
+      "username": null,
+      "first_name": "Amshyq",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-12T18:26:55.370368+00:00",
+      "full_name": "Amshyq Huilo"
+    },
+    "1491893907": {
+      "user_id": 1491893907,
+      "username": "sanv1lzz",
+      "first_name": "#мертвый кент",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-12T18:56:37.572454+00:00",
+      "full_name": "#мертвый кент"
+    },
+    "5843671101": {
+      "user_id": 5843671101,
+      "username": "Crimscene",
+      "first_name": "Chief Keef Crimescene",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-12T21:18:56.056027+00:00",
+      "full_name": "Chief Keef Crimescene"
     }
   },
   "bans": {
