@@ -8,7 +8,7 @@
       "wins": 1,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-11T21:46:10.855364+00:00",
+      "last_seen": "2026-11-12T10:55:24.181535+00:00",
       "full_name": "awesome @rypyi",
       "private_started": true
     },
@@ -184,7 +184,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-12T00:05:27.094020+00:00",
+      "last_seen": "2026-11-12T06:05:31.979163+00:00",
       "full_name": "entral"
     },
     "1721327707": {
@@ -562,7 +562,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-11T13:20:24.319566+00:00",
+      "last_seen": "2026-11-12T10:54:00.258156+00:00",
       "full_name": "xxw"
     },
     "7087931899": {
@@ -1038,6 +1038,28 @@
       "banned": false,
       "last_seen": "2026-11-11T23:52:24.646288+00:00",
       "full_name": "v."
+    },
+    "5746744204": {
+      "user_id": 5746744204,
+      "username": "Sanek_Tanto",
+      "first_name": "Сан5чек",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-12T07:28:35.489384+00:00",
+      "full_name": "Сан5чек"
+    },
+    "1989005831": {
+      "user_id": 1989005831,
+      "username": "zxzxzxzcxcx",
+      "first_name": "ᅠ ￴￴￴￴",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-12T08:28:51.934883+00:00",
+      "full_name": "ᅠ ￴￴￴￴"
     }
   },
   "bans": {
