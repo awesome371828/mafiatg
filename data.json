@@ -184,7 +184,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-12T17:56:59.767562+00:00",
+      "last_seen": "2026-11-13T12:53:37.093085+00:00",
       "full_name": "entral"
     },
     "1721327707": {
@@ -506,7 +506,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-11T12:28:47.480374+00:00",
+      "last_seen": "2026-11-13T12:53:37.086715+00:00",
       "full_name": "rrt"
     },
     "8341440366": {
@@ -573,7 +573,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-12T17:56:59.748444+00:00",
+      "last_seen": "2026-11-13T12:53:37.089735+00:00",
       "full_name": "Чувак"
     },
     "1284296923": {
@@ -716,7 +716,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-11T15:54:33.530350+00:00",
+      "last_seen": "2026-11-13T12:53:37.096382+00:00",
       "full_name": "."
     },
     "5249341905": {
@@ -904,7 +904,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-09T18:38:08.400516+00:00",
+      "last_seen": "2026-11-13T17:11:26.664682+00:00",
       "full_name": "Venom X"
     },
     "7613817426": {
@@ -1047,7 +1047,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-12T07:28:35.489384+00:00",
+      "last_seen": "2026-11-13T12:53:37.078474+00:00",
       "full_name": "Сан5чек"
     },
     "1989005831": {
@@ -1115,6 +1115,50 @@
       "banned": false,
       "last_seen": "2026-11-13T04:03:31.292493+00:00",
       "full_name": "Mvp xaxa"
+    },
+    "7653230034": {
+      "user_id": 7653230034,
+      "username": "skodn1kk",
+      "first_name": "𝘆𝘂𝗰𝗵𝗶🧛🏻",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-13T12:53:37.091370+00:00",
+      "full_name": "𝘆𝘂𝗰𝗵𝗶🧛🏻"
+    },
+    "8878490419": {
+      "user_id": 8878490419,
+      "username": null,
+      "first_name": "Gra",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-13T12:53:37.095080+00:00",
+      "full_name": "Gra Gra"
+    },
+    "8678590907": {
+      "user_id": 8678590907,
+      "username": "sositemnewse",
+      "first_name": "Darkweizerov X Nesokrushim",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-13T13:30:34.331243+00:00",
+      "full_name": "Darkweizerov X Nesokrushim"
+    },
+    "9189140169": {
+      "user_id": 9189140169,
+      "username": "Venom780067",
+      "first_name": "Venom",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-13T16:42:46.796294+00:00",
+      "full_name": "Venom"
     }
   },
   "bans": {
