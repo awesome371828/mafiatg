@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-11T21:46:10.867987+00:00",
+      "last_seen": "2026-11-13T00:55:24.116542+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1093,6 +1093,28 @@
       "banned": false,
       "last_seen": "2026-11-12T21:18:56.056027+00:00",
       "full_name": "Chief Keef Crimescene"
+    },
+    "1445091052": {
+      "user_id": 1445091052,
+      "username": "varnboba",
+      "first_name": "unchaill",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-13T00:55:24.105778+00:00",
+      "full_name": "unchaill"
+    },
+    "8883292139": {
+      "user_id": 8883292139,
+      "username": null,
+      "first_name": "Mvp",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-13T04:03:31.292493+00:00",
+      "full_name": "Mvp xaxa"
     }
   },
   "bans": {
