@@ -882,7 +882,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-08T22:37:26.465499+00:00",
+      "last_seen": "2026-11-14T08:52:46.866778+00:00",
       "full_name": "­"
     },
     "8747490399": {
@@ -1129,14 +1129,14 @@
     },
     "8878490419": {
       "user_id": 8878490419,
-      "username": null,
-      "first_name": "Gra",
+      "username": "grnotty",
+      "first_name": "Нотти гра гра",
       "games": 0,
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-13T12:53:37.095080+00:00",
-      "full_name": "Gra Gra"
+      "last_seen": "2026-11-14T08:06:31.537501+00:00",
+      "full_name": "Нотти гра гра"
     },
     "8678590907": {
       "user_id": 8678590907,
@@ -1159,6 +1159,28 @@
       "banned": false,
       "last_seen": "2026-11-13T16:42:46.796294+00:00",
       "full_name": "Venom"
+    },
+    "6578358514": {
+      "user_id": 6578358514,
+      "username": "Hihipom",
+      "first_name": "Суслик",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-14T08:45:09.664471+00:00",
+      "full_name": "Суслик"
+    },
+    "5852264045": {
+      "user_id": 5852264045,
+      "username": "usuyz",
+      "first_name": "𝑳𝒆𝒔𝒉𝒂",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-14T09:13:35.959547+00:00",
+      "full_name": "𝑳𝒆𝒔𝒉𝒂"
     }
   },
   "bans": {
