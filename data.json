@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-14T23:41:22.115330+00:00",
+      "last_seen": "2026-11-15T08:59:13.341682+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1302,6 +1302,50 @@
       "banned": false,
       "last_seen": "2026-11-14T23:41:22.120137+00:00",
       "full_name": "V’N"
+    },
+    "5220769944": {
+      "user_id": 5220769944,
+      "username": "quick_goda",
+      "first_name": "quickkdropp",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-15T05:53:05.820831+00:00",
+      "full_name": "quickkdropp"
+    },
+    "8387773414": {
+      "user_id": 8387773414,
+      "username": "timosha0355",
+      "first_name": "timoha🤡0355",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-15T07:47:36.673210+00:00",
+      "full_name": "timoha🤡0355"
+    },
+    "6395068475": {
+      "user_id": 6395068475,
+      "username": "ealyc",
+      "first_name": "ZERO",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-15T09:13:28.181724+00:00",
+      "full_name": "ZERO"
+    },
+    "1371380864": {
+      "user_id": 1371380864,
+      "username": "dontlatore",
+      "first_name": "Ярослав",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-15T10:08:36.742773+00:00",
+      "full_name": "Ярослав"
     }
   },
   "bans": {
