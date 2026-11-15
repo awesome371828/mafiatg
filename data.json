@@ -184,7 +184,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-14T18:02:43.942850+00:00",
+      "last_seen": "2026-11-15T16:50:32.549760+00:00",
       "full_name": "entral"
     },
     "1721327707": {
@@ -506,7 +506,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-14T17:58:42.817073+00:00",
+      "last_seen": "2026-11-15T16:50:32.552844+00:00",
       "full_name": "rrt"
     },
     "8341440366": {
@@ -1135,7 +1135,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-14T16:24:41.499997+00:00",
+      "last_seen": "2026-11-15T16:50:32.557142+00:00",
       "full_name": "Нотти гра гра"
     },
     "8678590907": {
@@ -1146,7 +1146,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-13T13:30:34.331243+00:00",
+      "last_seen": "2026-11-15T16:50:32.551335+00:00",
       "full_name": "Darkweizerov X Nesokrushim"
     },
     "9189140169": {
@@ -1346,6 +1346,39 @@
       "banned": false,
       "last_seen": "2026-11-15T10:08:36.742773+00:00",
       "full_name": "Ярослав"
+    },
+    "6069279010": {
+      "user_id": 6069279010,
+      "username": "vladick272",
+      "first_name": "Влад#чикенган",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-15T16:50:32.554351+00:00",
+      "full_name": "Влад#чикенган"
+    },
+    "8514904969": {
+      "user_id": 8514904969,
+      "username": "bylat45",
+      "first_name": "22:57",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-15T16:50:32.555953+00:00",
+      "full_name": "22:57"
+    },
+    "6847272105": {
+      "user_id": 6847272105,
+      "username": "nylrex",
+      "first_name": "Jahseh",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-15T17:07:40.261742+00:00",
+      "full_name": "Jahseh OnFroy"
     }
   },
   "bans": {
