@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-14T16:24:41.606176+00:00",
+      "last_seen": "2026-11-14T23:41:22.115330+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1280,6 +1280,28 @@
       "banned": false,
       "last_seen": "2026-11-14T19:10:54.625099+00:00",
       "full_name": "Александр"
+    },
+    "5746072224": {
+      "user_id": 5746072224,
+      "username": "kirill123678",
+      "first_name": "КереL",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-14T23:41:22.118303+00:00",
+      "full_name": "КереL"
+    },
+    "6432192460": {
+      "user_id": 6432192460,
+      "username": "n1nnd11",
+      "first_name": "V’N",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-14T23:41:22.120137+00:00",
+      "full_name": "V’N"
     }
   },
   "bans": {
