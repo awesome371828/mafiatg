@@ -1063,14 +1063,14 @@
     },
     "9130726058": {
       "user_id": 9130726058,
-      "username": null,
-      "first_name": "Amshyq",
+      "username": "Fanatikmvp",
+      "first_name": "patrick",
       "games": 0,
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-12T18:26:55.370368+00:00",
-      "full_name": "Amshyq Huilo"
+      "last_seen": "2026-11-15T23:47:59.449537+00:00",
+      "full_name": "patrick Huilo"
     },
     "1491893907": {
       "user_id": 1491893907,
@@ -1113,7 +1113,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-13T04:03:31.292493+00:00",
+      "last_seen": "2026-11-16T03:51:50.271189+00:00",
       "full_name": "Mvp xaxa"
     },
     "7653230034": {
@@ -1212,7 +1212,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-14T16:24:41.492517+00:00",
+      "last_seen": "2026-11-15T23:47:59.540173+00:00",
       "full_name": "Ask"
     },
     "8955503017": {
@@ -1379,6 +1379,17 @@
       "banned": false,
       "last_seen": "2026-11-15T17:07:40.261742+00:00",
       "full_name": "Jahseh OnFroy"
+    },
+    "8502736154": {
+      "user_id": 8502736154,
+      "username": "Zuzdi_whor",
+      "first_name": "Zuzdi",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-16T03:37:04.367449+00:00",
+      "full_name": "Zuzdi"
     }
   },
   "bans": {
