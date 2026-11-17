@@ -1401,6 +1401,28 @@
       "banned": false,
       "last_seen": "2026-11-16T08:38:02.641987+00:00",
       "full_name": "𝙼𝚘𝚣𝚊𝚛𝚝"
+    },
+    "7654867894": {
+      "user_id": 7654867894,
+      "username": "Respa_Kryt",
+      "first_name": "Respa",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-16T20:01:58.208640+00:00",
+      "full_name": "Respa"
+    },
+    "1011315301": {
+      "user_id": 1011315301,
+      "username": "RomcikFN",
+      "first_name": "Romc1k",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-16T20:01:58.211625+00:00",
+      "full_name": "Romc1k"
     }
   },
   "bans": {
