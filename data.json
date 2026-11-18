@@ -184,7 +184,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-18T06:47:47.411919+00:00",
+      "last_seen": "2026-11-18T16:09:32.223521+00:00",
       "full_name": "entral"
     },
     "1721327707": {
@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-18T04:35:17.776715+00:00",
+      "last_seen": "2026-11-18T14:57:40.206155+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1456,6 +1456,17 @@
       "banned": false,
       "last_seen": "2026-11-17T19:32:33.238747+00:00",
       "full_name": "шайнов младший"
+    },
+    "7787739964": {
+      "user_id": 7787739964,
+      "username": "poopkiss",
+      "first_name": "иванов",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-18T13:41:20.793851+00:00",
+      "full_name": "иванов иван"
     }
   },
   "bans": {
