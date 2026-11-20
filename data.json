@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-19T18:53:36.788226+00:00",
+      "last_seen": "2026-11-20T15:11:43.112941+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1102,7 +1102,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-13T00:55:24.105778+00:00",
+      "last_seen": "2026-11-20T13:52:14.470296+00:00",
       "full_name": "unchaill"
     },
     "8883292139": {
@@ -1465,7 +1465,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-19T21:16:09.450438+00:00",
+      "last_seen": "2026-11-20T18:46:02.706584+00:00",
       "full_name": ". ."
     },
     "5239021313": {
@@ -1588,6 +1588,17 @@
       "banned": false,
       "last_seen": "2026-11-19T19:50:17.440457+00:00",
       "full_name": "Lizirgin:metallic"
+    },
+    "7669905700": {
+      "user_id": 7669905700,
+      "username": "sky_moth2",
+      "first_name": "Mothie",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-20T13:52:14.468860+00:00",
+      "full_name": "Mothie [00:49]"
     }
   },
   "bans": {
