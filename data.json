@@ -606,8 +606,8 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-04T21:05:24.859210+00:00",
-      "full_name": "Rainx 【21:58】"
+      "last_seen": "2026-11-21T17:09:40.616537+00:00",
+      "full_name": "Rainx"
     },
     "5328587695": {
       "user_id": 5328587695,
@@ -771,7 +771,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-14T20:53:02.759800+00:00",
+      "last_seen": "2026-11-21T20:11:29.824635+00:00",
       "full_name": "Артём"
     },
     "5275255185": {
@@ -1465,7 +1465,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-21T10:31:30.369764+00:00",
+      "last_seen": "2026-11-21T19:10:21.913470+00:00",
       "full_name": "иванов холкоф"
     },
     "5239021313": {
@@ -1599,6 +1599,17 @@
       "banned": false,
       "last_seen": "2026-11-20T13:52:14.468860+00:00",
       "full_name": "Mothie [00:49]"
+    },
+    "6642434275": {
+      "user_id": 6642434275,
+      "username": "GLONASS82",
+      "first_name": "Glonassഒ",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-21T17:09:40.614543+00:00",
+      "full_name": "Glonassഒ"
     }
   },
   "bans": {
