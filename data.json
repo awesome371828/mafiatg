@@ -184,7 +184,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-22T00:07:50.108253+00:00",
+      "last_seen": "2026-11-23T01:20:52.401807+00:00",
       "full_name": "D.C"
     },
     "1721327707": {
@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-21T01:51:47.026747+00:00",
+      "last_seen": "2026-11-22T21:36:40.098242+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1036,7 +1036,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-21T08:59:55.521449+00:00",
+      "last_seen": "2026-11-22T22:42:36.101088+00:00",
       "full_name": "v."
     },
     "5746744204": {
@@ -1621,6 +1621,17 @@
       "banned": false,
       "last_seen": "2026-11-22T13:06:40.855591+00:00",
       "full_name": "Qcuik БодЯ"
+    },
+    "6799234815": {
+      "user_id": 6799234815,
+      "username": "POZYVNOI_NOX",
+      "first_name": "PROHOD_CHEKHOV",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-22T20:56:44.265648+00:00",
+      "full_name": "PROHOD_CHEKHOV"
     }
   },
   "bans": {
