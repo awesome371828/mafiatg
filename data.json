@@ -184,7 +184,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-23T01:20:52.401807+00:00",
+      "last_seen": "2026-11-23T21:55:22.706556+00:00",
       "full_name": "D.C"
     },
     "1721327707": {
@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-23T08:45:51.315162+00:00",
+      "last_seen": "2026-11-23T21:55:22.685295+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1135,7 +1135,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-21T10:05:42.349564+00:00",
+      "last_seen": "2026-11-23T21:55:22.700560+00:00",
       "full_name": "Нотти гра гра"
     },
     "8678590907": {
@@ -1465,7 +1465,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-21T19:10:21.913470+00:00",
+      "last_seen": "2026-11-23T21:55:22.710423+00:00",
       "full_name": "иванов холкоф"
     },
     "5239021313": {
@@ -1632,6 +1632,17 @@
       "banned": false,
       "last_seen": "2026-11-22T20:56:44.265648+00:00",
       "full_name": "PROHOD_CHEKHOV"
+    },
+    "8530596985": {
+      "user_id": 8530596985,
+      "username": "oxewock",
+      "first_name": "#orden🀄",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-23T21:55:22.704561+00:00",
+      "full_name": "#orden🀄"
     }
   },
   "bans": {
