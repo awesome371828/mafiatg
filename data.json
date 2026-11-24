@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-23T21:55:22.685295+00:00",
+      "last_seen": "2026-11-24T11:33:43.048711+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1643,6 +1643,17 @@
       "banned": false,
       "last_seen": "2026-11-23T21:55:22.704561+00:00",
       "full_name": "#orden🀄"
+    },
+    "6084058430": {
+      "user_id": 6084058430,
+      "username": "kkityup",
+      "first_name": "траповская",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-24T08:46:59.007050+00:00",
+      "full_name": "траповская"
     }
   },
   "bans": {
