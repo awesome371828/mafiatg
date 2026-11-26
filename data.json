@@ -184,7 +184,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-25T19:47:39.548010+00:00",
+      "last_seen": "2026-11-26T16:28:33.809558+00:00",
       "full_name": "D.C"
     },
     "1721327707": {
@@ -540,7 +540,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-03T06:39:32.550992+00:00",
+      "last_seen": "2026-11-26T19:04:43.475759+00:00",
       "full_name": "Neizvest"
     },
     "1477994188": {
@@ -771,7 +771,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-21T20:11:29.824635+00:00",
+      "last_seen": "2026-11-26T18:13:56.660114+00:00",
       "full_name": "Артём"
     },
     "5275255185": {
@@ -1135,7 +1135,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-26T07:29:00.716259+00:00",
+      "last_seen": "2026-11-26T14:46:19.580080+00:00",
       "full_name": "Нотти гра гра"
     },
     "8678590907": {
@@ -1393,14 +1393,14 @@
     },
     "7938835178": {
       "user_id": 7938835178,
-      "username": "Sancta_Ruscia",
-      "first_name": "𝙼𝚘𝚣𝚊𝚛𝚝",
+      "username": "NoyrMess",
+      "first_name": "𐌑𐌏𐌔𐌀𐌓𐌕",
       "games": 0,
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-16T08:38:02.641987+00:00",
-      "full_name": "𝙼𝚘𝚣𝚊𝚛𝚝"
+      "last_seen": "2026-11-26T18:59:37.375443+00:00",
+      "full_name": "𐌑𐌏𐌔𐌀𐌓𐌕"
     },
     "7654867894": {
       "user_id": 7654867894,
@@ -1709,6 +1709,105 @@
       "banned": false,
       "last_seen": "2026-11-26T02:40:39.101912+00:00",
       "full_name": "𝓟𝓸𝔂𝓶𝓪𝓷"
+    },
+    "1440804349": {
+      "user_id": 1440804349,
+      "username": "Timoha573",
+      "first_name": "Тимоха",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T17:42:01.088920+00:00",
+      "full_name": "Тимоха"
+    },
+    "1856326444": {
+      "user_id": 1856326444,
+      "username": "klfgogfgoop",
+      "first_name": "︎",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T18:22:13.339971+00:00",
+      "full_name": "︎"
+    },
+    "8131365860": {
+      "user_id": 8131365860,
+      "username": "usernxv",
+      "first_name": "𝙨𝙡𝙚𝙚𝙥𝙮",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T19:04:43.799862+00:00",
+      "full_name": "𝙨𝙡𝙚𝙚𝙥𝙮"
+    },
+    "6347070379": {
+      "user_id": 6347070379,
+      "username": "Bigdonix",
+      "first_name": "BOGDAN",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T19:37:53.350468+00:00",
+      "full_name": "BOGDAN"
+    },
+    "5478937936": {
+      "user_id": 5478937936,
+      "username": "Cake4410",
+      "first_name": "Ал",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T19:38:07.223631+00:00",
+      "full_name": "Ал"
+    },
+    "5430785304": {
+      "user_id": 5430785304,
+      "username": "SHOCK1333",
+      "first_name": "SHOCK 1333",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T19:40:13.487883+00:00",
+      "full_name": "SHOCK 1333"
+    },
+    "988952438": {
+      "user_id": 988952438,
+      "username": "Skw1rtt",
+      "first_name": "Le",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T19:41:09.489370+00:00",
+      "full_name": "Le Gang"
+    },
+    "6422186004": {
+      "user_id": 6422186004,
+      "username": "MeowFreeze",
+      "first_name": "Nope",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T19:42:14.392602+00:00",
+      "full_name": "Nope"
+    },
+    "1282408550": {
+      "user_id": 1282408550,
+      "username": "Exo_vad_S",
+      "first_name": "я под опятами",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T19:45:03.108837+00:00",
+      "full_name": "я под опятами"
     }
   },
   "bans": {
