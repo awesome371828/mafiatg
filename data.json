@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-25T22:22:26.307831+00:00",
+      "last_seen": "2026-11-26T05:24:14.470824+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1135,7 +1135,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-23T21:55:22.700560+00:00",
+      "last_seen": "2026-11-26T07:29:00.716259+00:00",
       "full_name": "Нотти гра гра"
     },
     "8678590907": {
@@ -1698,6 +1698,17 @@
       "banned": false,
       "last_seen": "2026-11-25T22:04:47.559877+00:00",
       "full_name": "S"
+    },
+    "5793243481": {
+      "user_id": 5793243481,
+      "username": "Fast2224",
+      "first_name": "𝓟𝓸𝔂𝓶𝓪𝓷",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T02:40:39.101912+00:00",
+      "full_name": "𝓟𝓸𝔂𝓶𝓪𝓷"
     }
   },
   "bans": {
