@@ -184,7 +184,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-23T21:55:22.706556+00:00",
+      "last_seen": "2026-11-25T19:47:39.548010+00:00",
       "full_name": "D.C"
     },
     "1721327707": {
@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-25T12:07:26.330618+00:00",
+      "last_seen": "2026-11-25T22:22:26.307831+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1687,6 +1687,17 @@
       "banned": false,
       "last_seen": "2026-11-25T09:27:36.570194+00:00",
       "full_name": "[>_<]🎧"
+    },
+    "5903901891": {
+      "user_id": 5903901891,
+      "username": "oxcecvv",
+      "first_name": "S",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-25T22:04:47.559877+00:00",
+      "full_name": "S"
     }
   },
   "bans": {
