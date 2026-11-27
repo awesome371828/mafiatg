@@ -1135,7 +1135,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-27T03:42:04.082790+00:00",
+      "last_seen": "2026-11-27T07:07:17.680656+00:00",
       "full_name": "Нотти гра гра"
     },
     "8678590907": {
@@ -1885,6 +1885,39 @@
       "banned": false,
       "last_seen": "2026-11-26T23:32:02.806067+00:00",
       "full_name": "Kaiser"
+    },
+    "6187896330": {
+      "user_id": 6187896330,
+      "username": "misterbobik1",
+      "first_name": "specializedd",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-27T07:07:17.671545+00:00",
+      "full_name": "specializedd"
+    },
+    "5517751274": {
+      "user_id": 5517751274,
+      "username": "Saratovech",
+      "first_name": "Vadim",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-27T09:03:38.088667+00:00",
+      "full_name": "Vadim"
+    },
+    "5887670005": {
+      "user_id": 5887670005,
+      "username": "tgvkg",
+      "first_name": ".",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-27T11:48:04.220076+00:00",
+      "full_name": "."
     }
   },
   "bans": {
