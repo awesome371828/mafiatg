@@ -448,7 +448,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-26T05:24:14.470824+00:00",
+      "last_seen": "2026-11-26T23:32:02.814239+00:00",
       "full_name": "Artik Love Forgi"
     },
     "7850493613": {
@@ -1135,7 +1135,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-26T14:46:19.580080+00:00",
+      "last_seen": "2026-11-27T03:42:04.082790+00:00",
       "full_name": "Нотти гра гра"
     },
     "8678590907": {
@@ -1635,14 +1635,14 @@
     },
     "8530596985": {
       "user_id": 8530596985,
-      "username": "oxewock",
-      "first_name": "#orden🀄",
+      "username": "ouixn",
+      "first_name": "fedso",
       "games": 0,
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-25T12:01:28.600415+00:00",
-      "full_name": "#orden🀄"
+      "last_seen": "2026-11-27T03:50:23.374734+00:00",
+      "full_name": "fedso"
     },
     "6084058430": {
       "user_id": 6084058430,
@@ -1808,6 +1808,83 @@
       "banned": false,
       "last_seen": "2026-11-26T19:45:03.108837+00:00",
       "full_name": "я под опятами"
+    },
+    "736560762": {
+      "user_id": 736560762,
+      "username": "ostlann",
+      "first_name": "виктр саныч",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T23:32:02.793840+00:00",
+      "full_name": "виктр саныч"
+    },
+    "887168937": {
+      "user_id": 887168937,
+      "username": "th1nkyy",
+      "first_name": "Shabit",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T23:32:02.796047+00:00",
+      "full_name": "Shabit Hapaev"
+    },
+    "6574904077": {
+      "user_id": 6574904077,
+      "username": "Halogenostat",
+      "first_name": "Halogenostat",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T23:32:02.798182+00:00",
+      "full_name": "Halogenostat"
+    },
+    "6221483976": {
+      "user_id": 6221483976,
+      "username": "Zopikk",
+      "first_name": "Zopik peek",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T23:32:02.800198+00:00",
+      "full_name": "Zopik peek"
+    },
+    "1672650281": {
+      "user_id": 1672650281,
+      "username": "xslxyerx0",
+      "first_name": "xslxyerx",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T23:32:02.802127+00:00",
+      "full_name": "xslxyerx"
+    },
+    "805422149": {
+      "user_id": 805422149,
+      "username": "S1lentofficial",
+      "first_name": "-",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T23:32:02.804119+00:00",
+      "full_name": "-"
+    },
+    "7168880433": {
+      "user_id": 7168880433,
+      "username": "atpeip",
+      "first_name": "Kaiser",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-26T23:32:02.806067+00:00",
+      "full_name": "Kaiser"
     }
   },
   "bans": {
