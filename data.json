@@ -1135,7 +1135,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-27T19:22:37.532042+00:00",
+      "last_seen": "2026-11-28T06:34:52.445726+00:00",
       "full_name": "Нотти гра гра"
     },
     "8678590907": {
@@ -1916,7 +1916,7 @@
       "wins": 0,
       "losses": 0,
       "banned": false,
-      "last_seen": "2026-11-27T19:22:37.523601+00:00",
+      "last_seen": "2026-11-28T06:36:31.529256+00:00",
       "full_name": "."
     },
     "6655368131": {
@@ -1951,6 +1951,39 @@
       "banned": false,
       "last_seen": "2026-11-27T20:26:10.411563+00:00",
       "full_name": "Анька"
+    },
+    "8270438562": {
+      "user_id": 8270438562,
+      "username": "dashok_45",
+      "first_name": "-",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-28T02:30:47.450262+00:00",
+      "full_name": "-"
+    },
+    "8887021363": {
+      "user_id": 8887021363,
+      "username": "veaponav",
+      "first_name": "херо веапонов 🇫🇷",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-28T05:45:34.088503+00:00",
+      "full_name": "херо веапонов 🇫🇷"
+    },
+    "9271794572": {
+      "user_id": 9271794572,
+      "username": "PsixOndaAndar",
+      "first_name": "Psix",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "banned": false,
+      "last_seen": "2026-11-28T05:45:34.931547+00:00",
+      "full_name": "Psix"
     }
   },
   "bans": {
